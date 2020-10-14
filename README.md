@@ -402,4 +402,43 @@ We edit parameters `trialConcurrency` and `gpuNum` in `trial` section.
      gpuIndices: "0,1,2,3,4,5,6,7"
    EOF
    ```
+   
+## Debugging
 
+### NNI Error
+
+Usually it shows up like this:
+
+![Error Training service error: GPU not available. Please check your CUDA  configuration · Issue #2463 · microsoft/nni · GitHub](https://user-images.githubusercontent.com/23012102/82327761-723ddd80-9a11-11ea-9801-e42ba41b1321.png)
+
+Then you can go to check the dispatcher.log and nnimanager.log to see if there any report about this error.
+
+To check dispatcher.log & nnimanager.log:
+
+Click Download -> Logfiles: 
+
+![Fix Python Neural Network Intelligence (NNI) Trial Jobs Status is Failed -  Python NNI Tutorial](https://www.tutorialexample.com/wp-content/uploads/2020/05/view-python-nni-logfiles.png)
+
+Then you can see the dispatcher.log and nnimanager.log:
+
+![problem](https://user-images.githubusercontent.com/39946575/78686785-09e5e180-7926-11ea-9282-07a338b7a589.png)
+
+### Trial Error
+
+Usually it shows up like this:
+
+![Fix Python Neural Network Intelligence (NNI) Trial Jobs Status is Failed -  Python NNI Tutorial](https://www.tutorialexample.com/wp-content/uploads/2020/05/python-nni-trial-job-status-is-failed.png)
+
+you can check the trial output directory to track the error.
+
+Click the failed trail -> log:
+
+![../_images/trial_error.jpg](https://nni.readthedocs.io/en/latest/_images/trial_error.jpg)
+
+Then follow the path it specify, you can see the directory content like this:
+
+![All trails are getting failed · Issue #1367 · microsoft/nni · GitHub](https://user-images.githubusercontent.com/8463288/62023228-82769900-b202-11e9-98b4-0a2dd02c8e8b.png)
+
+"trial.log" contain the training program output, such as user defined "print" and training output.
+
+"stderr" contain the error message generate from the training program.
