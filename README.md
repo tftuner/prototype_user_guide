@@ -376,6 +376,8 @@ For example, you have 8 GPUs. You can execute 2 trials in parallel. Each trial i
 
 We use ELMO's config as example. 
 
+We edit parameters `trialConcurrency` and `gpuNum` in `trial` section.
+
 1. Edit {elmo_working_dir}/config.yml
 
    ```bash
