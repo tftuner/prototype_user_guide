@@ -367,3 +367,78 @@ nnictl resume egchD4qy # egchD4qy is the experiment id provided by the tuner whe
 ## Specify GPU 
 
 The number of GPU and the index of GPU are speicified in `config.yml` in the working directory. You can change `gpuNum` and `gpuIndices` to specific the gpu that the training program runs on. For details, please check the comments on the `config.yml`
+
+## Execute trials in parallel
+
+To speed up the tuning process, you can execute the trials in parallel. 
+
+For example, you have 8 GPUs. You can execute 2 trials in parallel. Each trial is allocated 4 GPU.
+
+We use ELMO's config as example. 
+
+We edit parameters `trialConcurrency` and `gpuNum` in `trial` section.
+
+1. Edit {elmo_working_dir}/config.yml
+
+   ```bash
+   cat << EOF > config.yml
+   authorName: lscm
+   experimentName: elmo
+   trialConcurrency: 2 # specifc the parallelism of trial
+   
+   maxExecDuration: 40h 
+   maxTrialNum: 9999
+   trainingServicePlatform: local
+   searchSpacePath: search_space.json
+   useAnnotation: false
+   tuner:
+     builtinTunerName: CUHKPrototypeTuner
+   trial:
+     command: python ./bin/train_elmo.py --train_prefix=./data/one_billion/1-billion-word-language-modeling-benchmark-r13output/training-monolingual.tokenized.shuffled/* --vocab_file ./data/vocab-2016-09-10.txt --save_dir ./output_model
+     codeDir: .
+     # specific the number of GPU used by each trial, here each trial use 1 GPU.
+     gpuNum: 4
+   localConfig:
+     gpuIndices: "0,1,2,3,4,5,6,7"
+   EOF
+   ```
+   
+## Debugging
+
+### NNI Error
+
+Usually it shows up like this:
+
+![Error Training service error: GPU not available. Please check your CUDA  configuration · Issue #2463 · microsoft/nni · GitHub](https://user-images.githubusercontent.com/23012102/82327761-723ddd80-9a11-11ea-9801-e42ba41b1321.png)
+
+Then you can go to check the dispatcher.log and nnimanager.log to see if there any report about this error.
+
+To check dispatcher.log & nnimanager.log:
+
+Click Download -> Logfiles: 
+
+![Fix Python Neural Network Intelligence (NNI) Trial Jobs Status is Failed -  Python NNI Tutorial](https://www.tutorialexample.com/wp-content/uploads/2020/05/view-python-nni-logfiles.png)
+
+Then you can see the dispatcher.log and nnimanager.log:
+
+![problem](https://user-images.githubusercontent.com/39946575/78686785-09e5e180-7926-11ea-9282-07a338b7a589.png)
+
+### Trial Error
+
+Usually it shows up like this:
+
+![Fix Python Neural Network Intelligence (NNI) Trial Jobs Status is Failed -  Python NNI Tutorial](https://www.tutorialexample.com/wp-content/uploads/2020/05/python-nni-trial-job-status-is-failed.png)
+
+you can check the trial output directory to track the error.
+
+Click the failed trail -> log:
+
+![../_images/trial_error.jpg](https://nni.readthedocs.io/en/latest/_images/trial_error.jpg)
+
+Then follow the path it specify, you can see the directory content like this:
+
+![All trails are getting failed · Issue #1367 · microsoft/nni · GitHub](https://user-images.githubusercontent.com/8463288/62023228-82769900-b202-11e9-98b4-0a2dd02c8e8b.png)
+
+"trial.log" contain the training program output, such as user defined "print" and training output.
+
+"stderr" contain the error message generate from the training program.
