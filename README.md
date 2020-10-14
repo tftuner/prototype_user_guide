@@ -6,7 +6,7 @@
 
    ```bash
    pip install nni && \
-   wget https://github.com/vincentcheny/hpo-training/releases/download/v1.3/CUHKPrototypeTuner-1.3-py3-none-any.whl && \
+   wget https://github.com/vincentcheny/hpo-training/releases/download/cuhktuner_v1.3/CUHKPrototypeTuner-1.3-py3-none-any.whl && \
    nnictl package install CUHKPrototypeTuner-1.3-py3-none-any.whl
    ```
 
