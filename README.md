@@ -1,25 +1,24 @@
-# **Manual for CUHKPrototypeTuner**
+# Manual for CUHKPrototypeTunerV2
 
-## Install CUHKPrototypeTuner
+## Install CUHKPrototypeTunerV2
 
 1. Run the following command 
 
    ```bash
    pip install nni && \
-   wget https://github.com/vincentcheny/hpo-training/releases/download/cuhktuner_v1.3/CUHKPrototypeTuner-1.3-py3-none-any.whl && \
-   nnictl package install CUHKPrototypeTuner-1.3-py3-none-any.whl
+   wget https://github.com/vincentcheny/hpo-training/releases/download/cuhk_prototype_tuner_v2_2/CUHKPrototypeTunerV2-2-py3-none-any.whl && \
+   nnictl package install CUHKPrototypeTunerV2-2-py3-none-any.whl
    ```
 
 2. if success install, you should see this output  in the command line
 
    ```bash
-   Processing ./CUHKPrototypeTuner-1.3-py3-none-any.whl
-   Installing collected packages: CUHKPrototypeTuner
-   Successfully installed CUHKPrototypeTuner-1.3
-   CUHKPrototypeTuner installed!
+   Installing collected packages: CUHKPrototypeTunerV2
+   Successfully installed CUHKPrototypeTunerV2-2
+   CUHKPrototypeTunerV2 installed!
    ```
 
-### For ELMO 
+## For ELMO 
 
 1. Clone the source code of ELMO from git 
 
@@ -35,7 +34,7 @@
 
 3. Create file  ``search_space.json`` to define the search space of hyperparameters and hardware parameters. Execute: 
 
-   ```bash
+   ```json
    cat << EOF > search_space.json
    {
        "epoch":{"_type": "uniform", "_value": [5, 50]},
@@ -58,7 +57,7 @@
 
 4. Create file  ``config.yml`` with following content. Execute:
 
-   ```bash
+   ```yml
    cat << EOF > config.yml
    authorName: lscm
    experimentName: elmo
@@ -70,29 +69,31 @@
    trainingServicePlatform: local
    searchSpacePath: search_space.json
    useAnnotation: false
-   tuner:
-     builtinTunerName: CUHKPrototypeTuner
+   advisor:
+     builtinAdvisorName: CUHKPrototypeTunerV2
+     classArgs:
+       num_epochs: 25
    trial:
      command: python ./bin/train_elmo.py --train_prefix=./data/one_billion/1-billion-word-language-modeling-benchmark-r13output/training-monolingual.tokenized.shuffled/* --vocab_file ./data/vocab-2016-09-10.txt --save_dir ./output_model
      codeDir: .
-     # specific the total number of GPU
+     # specifiy the number of GPU used by each trial
      gpuNum: 4
    localConfig:
-      # specific index of GPU just like CUDA_VISIBLE_DEVICES
+     # specific index of GPU used by the experiment, just like CUDA_VISIBLE_DEVICES
      gpuIndices: "0,1,2,3"
    EOF
    ```
-
+   
 5. Replace `bilm/training.py` and `train_elmo.py` to apply configuration from tuner and report performance metrics
 
 ```bash
-wget https://raw.githubusercontent.com/wuzhuoming/tutorial_file/master/training.py -O bilm/training.py && \
-wget https://raw.githubusercontent.com/wuzhuoming/tutorial_file/master/train_elmo.py -O bin/train_elmo.py 
+wget https://raw.githubusercontent.com/wuzhuoming/CUHKPrototypeTunerV2/main/training.py -O bilm/training.py && \
+wget https://raw.githubusercontent.com/wuzhuoming/CUHKPrototypeTunerV2/main/train_elmo.py -O bin/train_elmo.py 
 ```
 
 6. The tuning is ready to [start](#start-tuning) 
 
-### For mBART 
+## For mBART 
 
 1. Create a working directory "mbart"
 
@@ -105,14 +106,14 @@ wget https://raw.githubusercontent.com/wuzhuoming/tutorial_file/master/train_elm
    ```bash
    mkdir user_dir
    
-   wget https://raw.githubusercontent.com/wuzhuoming/tutorial_file/master/__init__.py -O user_dir/__init__.py
+   wget https://raw.githubusercontent.com/wuzhuoming/CUHKPrototypeTunerV2/main/__init__.py -O user_dir/__init__.py
    
-   wget https://raw.githubusercontent.com/wuzhuoming/tutorial_file/master/translation_multi_simple_epoch_nni.py -O user_dir/translation_multi_simple_epoch_nni.py
+   wget https://raw.githubusercontent.com/wuzhuoming/CUHKPrototypeTunerV2/main/translation_multi_simple_epoch_nni.py -O user_dir/translation_multi_simple_epoch_nni.py
    ```
 
 3. Create file  ``search_space.json`` to define the search space of hyperparameters and hardware parameters. Execute: 
 
-   ```bash
+   ```json
    cat << EOF > search_space.json
    {
        "dropout":{"_type":"choice","_value":[0.0,0.1,0.2,0.3]},
@@ -132,7 +133,7 @@ wget https://raw.githubusercontent.com/wuzhuoming/tutorial_file/master/train_elm
 
 4. Create file  ``config.yml`` with following content. Execute:
 
-   ```bash
+   ```yml
    cat << EOF > config.yml
    authorName: lscm
    experimentName: MBART
@@ -144,23 +145,25 @@ wget https://raw.githubusercontent.com/wuzhuoming/tutorial_file/master/train_elm
    trainingServicePlatform: local
    searchSpacePath: search_space.json
    useAnnotation: false
-   tuner:
-     builtinTunerName: CUHKPrototypeTuner
+   advisor:
+     builtinAdvisorName: CUHKPrototypeTunerV2
+     classArgs:
+       num_epochs: 25
    trial:
      command: python wrap_program_mbart.py
      codeDir: .
-     # specific the total number of GPU
+     # specifiy the number of GPU used by each trial
      gpuNum: 4
    localConfig:
-      # specific index of GPU just like CUDA_VISIBLE_DEVICES
+     # specifiy index of GPU used by the experiment, just like CUDA_VISIBLE_DEVICES
      gpuIndices: "0,1,2,3"
    EOF
    ```
-
+   
 5. Download the tuner program "wrap_program_mbart.py"
 
    ```bash
-   wget https://raw.githubusercontent.com/wuzhuoming/tutorial_file/master/wrap_program_mbart.py 
+   wget https://raw.githubusercontent.com/wuzhuoming/CUHKPrototypeTunerV2/main/wrap_program_mbart.py
    ```
 
 6. The tuning is ready to [start](#start-tuning).
@@ -182,7 +185,7 @@ wget https://raw.githubusercontent.com/wuzhuoming/tutorial_file/master/train_elm
 
 3. Create file  "search_space.json" to define the search space of hyperparameters and hardware parameters. Execute: 
 
-   ```bash
+   ```json
    cat << EOF > search_space.json
    {
        "clip-norm":{"_type":"choice","_value":[0.0,0.1,0.2,0.3,0.4,0.5]},
@@ -203,7 +206,7 @@ wget https://raw.githubusercontent.com/wuzhuoming/tutorial_file/master/train_elm
 
 4. Create file  "config.yml" with following content. Execute:
 
-   ```bash
+   ```yml
    cat << EOF > config.yml
    authorName: lscm
    experimentName: MASS
@@ -215,29 +218,31 @@ wget https://raw.githubusercontent.com/wuzhuoming/tutorial_file/master/train_elm
    trainingServicePlatform: local
    searchSpacePath: search_space.json
    useAnnotation: false
-   tuner:
-     builtinTunerName: CUHKPrototypeTuner
+   advisor:
+     builtinAdvisorName: CUHKPrototypeTunerV2
+     classArgs:
+       num_epochs: 25
    trial:
      command: python wrap_program_mass.py
      codeDir: .
-     # specific the total number of GPU
+     # specifiy the number of GPU used by each trial
      gpuNum: 4
    localConfig:
-      # specific index of GPU just like CUDA_VISIBLE_DEVICES
+     # specifiy index of GPU used by the experiment, just like CUDA_VISIBLE_DEVICES
      gpuIndices: "0,1,2,3"
    EOF
    ```
-
+   
 5. Download file "wrap_program_mass.py" in the same directory of "config.yml".
 
    ```bash
-   wget https://raw.githubusercontent.com/wuzhuoming/tutorial_file/master/wrap_program_mass.py
+   wget https://raw.githubusercontent.com/wuzhuoming/CUHKPrototypeTunerV2/main/wrap_program_mass.py
    ```
 
 6. Replace `mass/xmasked_seq2seq.py` to apply configuration from tuner and report performance metrics
 
 ```bash
-wget https://raw.githubusercontent.com/wuzhuoming/tutorial_file/master/xmasked_seq2seq.py -O mass/xmasked_seq2seq.py
+wget https://raw.githubusercontent.com/wuzhuoming/CUHKPrototypeTunerV2/main/xmasked_seq2seq.py -O mass/xmasked_seq2seq.py
 ```
 
 6. The tuning is ready to [start](#start-tuning) 
@@ -330,14 +335,14 @@ Click the “Hyper Parameter” tab to see the parallel graph.
 
 To stop current experiment, you can use this command:
 
-```
+```bash
 nnictl stop egchD4qy # egchD4qy is the experiment id provided by the tuner when you launch it 
 ```
 
 To resume the experiment you stop:
 
-```
-nnictl resume egchD4qy # egchD4qy is the experiment id provided by the tuner when you launch it 
+```bash
+nnictl resume egchD4qy
 ```
 
 ## Get the trained model
@@ -372,37 +377,44 @@ The number of GPU and the index of GPU are speicified in `config.yml` in the wor
 
 To speed up the tuning process, you can execute the trials in parallel. 
 
-For example, you have 8 GPUs. You can execute 2 trials in parallel. Each trial is allocated 4 GPU.
+For example, you have 8 GPUs. You can execute 8 trials in parallel. Each trial is allocated 1 GPU.
 
-We use ELMO's config as example. 
-
-We edit parameters `trialConcurrency` and `gpuNum` in `trial` section.
+To do so (use ELMO's config as example)
 
 1. Edit {elmo_working_dir}/config.yml
 
-   ```bash
-   cat << EOF > config.yml
-   authorName: lscm
-   experimentName: elmo
-   trialConcurrency: 2 # specifc the parallelism of trial
-   
-   maxExecDuration: 40h 
-   maxTrialNum: 9999
-   trainingServicePlatform: local
-   searchSpacePath: search_space.json
-   useAnnotation: false
-   tuner:
-     builtinTunerName: CUHKPrototypeTuner
-   trial:
-     command: python ./bin/train_elmo.py --train_prefix=./data/one_billion/1-billion-word-language-modeling-benchmark-r13output/training-monolingual.tokenized.shuffled/* --vocab_file ./data/vocab-2016-09-10.txt --save_dir ./output_model
-     codeDir: .
-     # specific the number of GPU used by each trial, here each trial use 1 GPU.
-     gpuNum: 4
-   localConfig:
-     gpuIndices: "0,1,2,3,4,5,6,7"
-   EOF
-   ```
-   
+```yml
+cat << EOF > config.yml
+authorName: lscm
+experimentName: elmo
+# Specify the number of trials execute in parallel, here we execute 8 trials in parallel.
+trialConcurrency: 8
+
+# Specify the maximum runing time, we specify 1 week here
+maxExecDuration: 40h 
+maxTrialNum: 9999
+trainingServicePlatform: local
+searchSpacePath: search_space.json
+useAnnotation: false
+advisor:
+  builtinAdvisorName: CUHKPrototypeTunerV2
+  classArgs:
+    num_epochs: 25
+trial:
+  command: python ./bin/train_elmo.py --train_prefix=./data/one_billion/1-billion-word-language-modeling-benchmark-r13output/training-monolingual.tokenized.shuffled/* --vocab_file ./data/vocab-2016-09-10.txt --save_dir ./output_model
+  codeDir: .
+  # specific the number of GPU used by each trial, here each trial use 1 GPU.
+  gpuNum: 1
+localConfig:
+  # specific index of GPU used by the experiment, just like CUDA_VISIBLE_DEVICES
+  # since we set 8 trials run in parallel and each trial need 1 GPU, total visible 
+  # GPU device shoule be 8.
+  gpuIndices: "0,1,2,3,4,5,6,7"
+EOF
+```
+
+
+
 ## Debugging
 
 ### NNI Error
@@ -411,13 +423,11 @@ Usually it shows up like this:
 
 ![Error Training service error: GPU not available. Please check your CUDA  configuration · Issue #2463 · microsoft/nni · GitHub](https://user-images.githubusercontent.com/23012102/82327761-723ddd80-9a11-11ea-9801-e42ba41b1321.png)
 
-Then you can go to check the dispatcher.log and nnimanager.log to see if there any report about this error.
+Then you can go to check the ``dispatcher.log`` and ``nnimanager.log`` to see if there is any report about this error.
 
-To check dispatcher.log & nnimanager.log:
+To check ``dispatcher.log`` and ``nnimanager.log``, click ``Download`` -> ``Log files``: 
 
-Click Download -> Logfiles: 
-
-![Fix Python Neural Network Intelligence (NNI) Trial Jobs Status is Failed -  Python NNI Tutorial](https://www.tutorialexample.com/wp-content/uploads/2020/05/view-python-nni-logfiles.png)
+![Fix Python Neural Network Intelligence (NNI) Trial Jobs Status is Failed -  Python NNI Tutorial](https://lh3.googleusercontent.com/-NNAW85KsnLs/X6U0zru4bKI/AAAAAAAAAk0/2FGmNf1__TkvVNg0lORbd0Tb3z2WohCPgCK8BGAsYHg/s0/2020-11-06.png)
 
 Then you can see the dispatcher.log and nnimanager.log:
 
@@ -427,18 +437,66 @@ Then you can see the dispatcher.log and nnimanager.log:
 
 Usually it shows up like this:
 
-![Fix Python Neural Network Intelligence (NNI) Trial Jobs Status is Failed -  Python NNI Tutorial](https://www.tutorialexample.com/wp-content/uploads/2020/05/python-nni-trial-job-status-is-failed.png)
+![Fix Python Neural Network Intelligence (NNI) Trial Jobs Status is Failed -  Python NNI Tutorial](https://lh3.googleusercontent.com/-17ORUYET3Sc/X6UzVllmWfI/AAAAAAAAAko/ntLMr1vYmW4MatxbFx6K7XMmS0gW3zFNwCK8BGAsYHg/s0/2020-11-06.png)
 
-you can check the trial output directory to track the error.
+You can check the trial output directory to track the error.
 
-Click the failed trail -> log:
+Click the failed trail -> Log:
 
-![../_images/trial_error.jpg](https://nni.readthedocs.io/en/latest/_images/trial_error.jpg)
+![](https://lh3.googleusercontent.com/-atXbfdTeb-M/X4bAFeI1DkI/AAAAAAAAAh0/Cfrh7mZWXKU2kXAXJ2XTg6AgGOq12VpWgCK8BGAsYHg/s0/2020-10-14.png)
 
-Then follow the path it specify, you can see the directory content like this:
+Clicking the two blue buttons will show you the corresponding contents. Or once you want to access those trial files, you can enter the ``Log path``:
 
 ![All trails are getting failed · Issue #1367 · microsoft/nni · GitHub](https://user-images.githubusercontent.com/8463288/62023228-82769900-b202-11e9-98b4-0a2dd02c8e8b.png)
 
-"trial.log" contain the training program output, such as user defined "print" and training output.
+``trial.log`` contain the training program standard output, such as user defined "print".
 
-"stderr" contain the error message generate from the training program.
+``stderr`` contain the error message generated from the training program.
+
+## Remarks for important changes between v1 and v2
+Here are some important changes from v1 to v2
+
+1. Configuration file
+
+   There is a necessary modification in config file. Please replace the corresponding codes according to the following example.
+
+   ### Original (CUHKPrototypeTuner):
+
+   ```yml
+   tuner:
+     builtinTunerName: CUHKPrototypeTuner
+   ```
+
+   ### New (CUHKPrototypeTunerV2):
+
+   ```yml
+   advisor:
+     builtinAdvisorName: CUHKPrototypeTunerV2
+     classArgs:
+       num_epochs: 40
+   ```
+
+   ``num_epochs`` refers to the maximum or commonly-used number of epochs in your training, e.g. 40.
+
+2. ML programs
+
+There are some news changes of the ML programs. Please following the instruction above to update that 3 ML programs
+
+2. Directory of model checkpoint:
+
+   The directories storing model checkpoints are renamed to ``{trialID}-{trialEpochs}-{configID}``. You can track the trail with its unique trial ID or specific budget.
+
+   ```bash
+   # tuner: CUHKPrototypeTuner
+   # format: {output directory}/trialID
+   # example:
+   {output directory}/DKqsP
+   
+   # tuner: CUHKPrototypeTunerV2
+   # format: {output directory}/{trialID}-{trialEpochs}-{configID}
+   # example:
+   {output directory}/cyXHO-3-5dd5dbcbbc1983b7
+   ```
+
+   During tuning, the tuner would maintain and may utilize such directories. Please do not delete them unless the training is finished or you are sure about such deletion.
+
