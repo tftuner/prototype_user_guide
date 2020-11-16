@@ -37,7 +37,6 @@
    ```json
    cat << EOF > search_space.json
    {
-       "epoch":{"_type": "uniform", "_value": [5, 50]},
        "batch_size":{"_type": "uniform", "_value": [64, 512]},
        "inter_op_parallelism_threads":{"_type":"choice","_value":[1,2,3,4]},
        "intra_op_parallelism_threads":{"_type":"choice","_value":[2,4,6,8,10,12]},
