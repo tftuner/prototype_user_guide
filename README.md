@@ -5,7 +5,7 @@
 1. Run the following command 
 
    ```bash
-   pip install nni && \
+   pip install nni==1.9 && \
    wget https://github.com/tftuner/prototype_user_guide/releases/download/v2.0.1/CUHKPrototypeTunerV2-2.0.1-py3-none-any.whl && \
    nnictl package install CUHKPrototypeTunerV2-2.0.1-py3-none-any.whl
    ```
@@ -494,8 +494,7 @@ Clicking the two blue buttons will show you the corresponding contents. Or once 
 
 ## Patch for gpu_metrics issue
 
-There is a bug in NNI when it reads gpu_metrics in some scenarios. To solve it, please run the following 2 commands to patch a file. Please remind that this needs to be done again whenever NNI is reinstalled.
-
+There is a bug in NNI when it reads gpu_metrics in some scenarios. To solve it, please run the following 2 commands to patch a file.
 ```bash
 nni_path=`python -c "from nni.package_utils import get_nni_installation_path as func;print(func())"`
 wget https://github.com/tftuner/prototype_user_guide/releases/download/v2.0.1/gpuScheduler.js -O $nni_path/training_service/local/gpuScheduler.js
