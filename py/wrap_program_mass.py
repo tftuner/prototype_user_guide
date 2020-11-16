@@ -125,8 +125,7 @@ else:
   logging.info("generate process finish and exit normally.")
 
 
-
-os.system("cat %s | grep -P \"^D\" | cut -f 3- | sacrebleu %s"%(result_file,target_file))
+bsf = os.popen("cat %s | grep -P \"^D\" | cut -f 3- | sacrebleu %s"%(result_file,target_file))
 bs = float(bsf.readline())
 print(bs)
 
