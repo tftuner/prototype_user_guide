@@ -30,16 +30,12 @@ def print_variable_summary():
 class LanguageModel(object):
     '''
     A class to build the tensorflow computational graph for NLMs
-
     All hyperparameters and model configuration is specified in a dictionary
     of 'options'.
-
     is_training is a boolean used to control behavior of dropout layers
         and softmax.  Set to False for testing.
-
     The LSTM cell is controlled by the 'lstm' key in options
     Here is an example:
-
      'lstm': {
       'cell_clip': 5,
       'dim': 4096,
@@ -47,7 +43,6 @@ class LanguageModel(object):
       'proj_clip': 5,
       'projection_dim': 512,
       'use_skip_connections': True},
-
         'projection_dim' is assumed token embedding size and LSTM output size.
         'dim' is the hidden state size.
         Set 'dim' == 'projection_dim' to skip a projection layer.
@@ -105,12 +100,9 @@ class LanguageModel(object):
     def _build_word_char_embeddings(self):
         '''
         options contains key 'char_cnn': {
-
         'n_characters': 262,
-
         # includes the start / end characters
         'max_characters_per_token': 50,
-
         'filters': [
             [1, 32],
             [2, 32],
@@ -121,10 +113,8 @@ class LanguageModel(object):
             [7, 512]
         ],
         'activation': 'tanh',
-
         # for the character embedding
         'embedding': {'dim': 16}
-
         # for highway layers
         # if omitted, then no highway layers
         'n_highway': 2,
@@ -435,7 +425,6 @@ class LanguageModel(object):
             self.total_loss: total loss op for training
             self.softmax_W, softmax_b: the softmax variables
             self.next_token_id / _reverse: placeholders for gold input
-
         '''
         batch_size = self.options['batch_size']
         unroll_steps = self.options['unroll_steps']
@@ -672,8 +661,8 @@ def _get_feed_dict_from_X(X, start, end, model, char_inputs, bidirectional):
     return feed_dict
 
 
-def train(options, data, n_gpus, tf_save_dir, tf_log_dir,
-          optimizer,hw_config,restart_ckpt_file=None):
+def train(options, data, n_gpus, gpu_index, tf_save_dir, tf_log_dir,session_config,
+          restart_ckpt_file=None):
 
     # not restarting so save the options
     if restart_ckpt_file is None:
@@ -687,12 +676,9 @@ def train(options, data, n_gpus, tf_save_dir, tf_log_dir,
 
         # set up the optimizer
         lr = options.get('learning_rate', 0.2)
-        if optimizer == "Adam":
-            opt = tf.train.AdamOptimizer(learning_rate=lr, beta1=0.9, beta2=0.999, epsilon=1e-08, use_locking=False)
-        elif optimizer == "Rmsp":
-            opt = tf.train.RMSPropOptimizer(lr, decay=0.9, momentum=0.0, epsilon=1e-10, use_locking=False,centered=False)
-        else:
-            opt = tf.train.AdagradOptimizer(learning_rate=lr,initial_accumulator_value=1.0)
+        opt = tf.train.AdagradOptimizer(learning_rate=lr,initial_accumulator_value=1.0)
+        # opt = tf.train.RMSPropOptimizer(lr, decay=0.9, momentum=0.0, epsilon=1e-10, use_locking=False,centered=False)
+
 
         # calculate the gradients on each GPU
         tower_grads = []
@@ -701,9 +687,9 @@ def train(options, data, n_gpus, tf_save_dir, tf_log_dir,
             'train_perplexity', [],
             initializer=tf.constant_initializer(0.0), trainable=False)
         norm_summaries = []
-        for k in range(n_gpus):
+        for k in gpu_index:
             with tf.device('/gpu:%d' % k):
-                with tf.variable_scope('lm', reuse=k > 0):
+                with tf.variable_scope('lm', reuse=tf.AUTO_REUSE):
                     # calculate the loss for one model replica and get
                     #   lstm states
                     model = LanguageModel(options, True)
@@ -756,7 +742,7 @@ def train(options, data, n_gpus, tf_save_dir, tf_log_dir,
         histogram_summaries.extend(
             summary_gradient_updates(grads, opt, lr))
 
-        saver = tf.train.Saver(tf.global_variables(), max_to_keep=2)
+        saver = tf.train.Saver(tf.global_variables(), max_to_keep=1)
         summary_op = tf.summary.merge(
             [perplexity_summmary] + norm_summaries
         )
@@ -766,7 +752,8 @@ def train(options, data, n_gpus, tf_save_dir, tf_log_dir,
 
     # do the training loop
     bidirectional = options.get('bidirectional', False)
-    with tf.Session(config=hw_config) as sess:
+    # with tf.Session(config=tf.ConfigProto(allow_soft_placement=True)) as sess:
+    with tf.Session(config=session_config) as sess:
         sess.run(init)
 
         # load the checkpoint data if needed
@@ -881,7 +868,6 @@ def train(options, data, n_gpus, tf_save_dir, tf_log_dir,
                 )
                 init_state_values = ret[4:]
                 
-            final_perplexity = ret[2]
 
             if batch_no % 1250 == 0:
                 summary_writer.add_summary(ret[3], batch_no)
@@ -892,17 +878,17 @@ def train(options, data, n_gpus, tf_save_dir, tf_log_dir,
                 print("Total time: %s" % (time.time() - t1))
 
             if (batch_no % 1250 == 0) or (batch_no == n_batches_total):
-            # if (batch_no % 10 == 0) or (batch_no == n_batches_total):
                 # save the model
                 checkpoint_path = os.path.join(tf_save_dir, 'model.ckpt')
                 saver.save(sess, checkpoint_path)
-                
 
-            # if batch_no % 15 == 0:
             if batch_no == n_batches_total:
                 # done training!
                 break
+
+            final_perplexity = ret[2]
         return final_perplexity
+
 
 
 def clip_by_global_norm_summary(t_list, clip_norm, norm_name, variables):
@@ -1114,4 +1100,3 @@ def dump_weights(tf_save_dir, outfile):
                 dset = fout.create_dataset(outname, shape, dtype='float32')
                 values = sess.run([v])[0]
                 dset[...] = values
-
