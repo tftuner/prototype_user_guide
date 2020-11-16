@@ -6,16 +6,16 @@
 
    ```bash
    pip install nni && \
-   wget https://github.com/vincentcheny/hpo-training/releases/download/cuhktuner_v1.3/CUHKPrototypeTuner-1.3-py3-none-any.whl && \
-   nnictl package install CUHKPrototypeTuner-1.3-py3-none-any.whl
+   wget https://github.com/vincentcheny/hpo-training/releases/download/cuhktuner_v1.4/CUHKPrototypeTuner-1.4-py3-none-any.whl && \
+   nnictl package install CUHKPrototypeTuner-1.4-py3-none-any.whl
    ```
 
 2. if success install, you should see this output  in the command line
 
    ```bash
-   Processing ./CUHKPrototypeTuner-1.3-py3-none-any.whl
+   Processing ./CUHKPrototypeTuner-1.4-py3-none-any.whl
    Installing collected packages: CUHKPrototypeTuner
-   Successfully installed CUHKPrototypeTuner-1.3
+   Successfully installed CUHKPrototypeTuner-1.4
    CUHKPrototypeTuner installed!
    ```
 
@@ -40,8 +40,6 @@
    {
        "epoch":{"_type": "uniform", "_value": [5, 50]},
        "batch_size":{"_type": "uniform", "_value": [64, 512]},
-       "optimizer":{"_type":"choice","_value":["Adag","Adam","Rmsp"]},
-       
        "inter_op_parallelism_threads":{"_type":"choice","_value":[1,2,3,4]},
        "intra_op_parallelism_threads":{"_type":"choice","_value":[2,4,6,8,10,12]},
        "infer_shapes":{"_type":"choice","_value":[0,1]},
@@ -57,7 +55,6 @@
    ```
 
 4. Create file  ``config.yml`` with following content. Execute:
-
    ```bash
    cat << EOF > config.yml
    authorName: lscm
@@ -82,12 +79,11 @@
      gpuIndices: "0,1,2,3"
    EOF
    ```
-
+   
 5. Replace `bilm/training.py` and `train_elmo.py` to apply configuration from tuner and report performance metrics
-
 ```bash
-wget https://raw.githubusercontent.com/wuzhuoming/tutorial_file/master/training.py -O bilm/training.py && \
-wget https://raw.githubusercontent.com/wuzhuoming/tutorial_file/master/train_elmo.py -O bin/train_elmo.py 
+wget https://raw.githubusercontent.com/wuzhuoming/tutorial_file/fix_elmo/training.py -O bilm/training.py && \
+wget https://raw.githubusercontent.com/wuzhuoming/tutorial_file/fix_elmo/train_elmo.py -O bin/train_elmo.py 
 ```
 
 6. The tuning is ready to [start](#start-tuning) 
@@ -105,11 +101,11 @@ wget https://raw.githubusercontent.com/wuzhuoming/tutorial_file/master/train_elm
    ```bash
    mkdir user_dir
    
-   wget https://raw.githubusercontent.com/wuzhuoming/tutorial_file/master/__init__.py -O user_dir/__init__.py
+   wget https://raw.githubusercontent.com/wuzhuoming/tutorial_file/fix_elmo/__init__.py -O user_dir/__init__.py
    
-   wget https://raw.githubusercontent.com/wuzhuoming/tutorial_file/master/translation_multi_simple_epoch_nni.py -O user_dir/translation_multi_simple_epoch_nni.py
+   wget https://raw.githubusercontent.com/wuzhuoming/tutorial_file/fix_elmo/translation_multi_simple_epoch_nni.py -O user_dir/translation_multi_simple_epoch_nni.py
    ```
-
+   
 3. Create file  ``search_space.json`` to define the search space of hyperparameters and hardware parameters. Execute: 
 
    ```bash
@@ -160,7 +156,7 @@ wget https://raw.githubusercontent.com/wuzhuoming/tutorial_file/master/train_elm
 5. Download the tuner program "wrap_program_mbart.py"
 
    ```bash
-   wget https://raw.githubusercontent.com/wuzhuoming/tutorial_file/master/wrap_program_mbart.py 
+   wget https://raw.githubusercontent.com/wuzhuoming/tutorial_file/fix_elmo/wrap_program_mbart.py 
    ```
 
 6. The tuning is ready to [start](#start-tuning).
@@ -200,7 +196,7 @@ wget https://raw.githubusercontent.com/wuzhuoming/tutorial_file/master/train_elm
    }
    EOF
    ```
-
+   
 4. Create file  "config.yml" with following content. Execute:
 
    ```bash
@@ -227,17 +223,16 @@ wget https://raw.githubusercontent.com/wuzhuoming/tutorial_file/master/train_elm
      gpuIndices: "0,1,2,3"
    EOF
    ```
-
+   
 5. Download file "wrap_program_mass.py" in the same directory of "config.yml".
 
    ```bash
-   wget https://raw.githubusercontent.com/wuzhuoming/tutorial_file/master/wrap_program_mass.py
+   wget https://raw.githubusercontent.com/wuzhuoming/tutorial_file/fix_elmo/wrap_program_mass.py
    ```
 
 6. Replace `mass/xmasked_seq2seq.py` to apply configuration from tuner and report performance metrics
-
 ```bash
-wget https://raw.githubusercontent.com/wuzhuoming/tutorial_file/master/xmasked_seq2seq.py -O mass/xmasked_seq2seq.py
+wget https://raw.githubusercontent.com/wuzhuoming/tutorial_file/fix_elmo/xmasked_seq2seq.py -O mass/xmasked_seq2seq.py
 ```
 
 6. The tuning is ready to [start](#start-tuning) 
@@ -341,31 +336,28 @@ nnictl resume egchD4qy # egchD4qy is the experiment id provided by the tuner whe
 ```
 
 ## Get the trained model
-
 1. The tuner execute the user training program multiple times (we call it `trial`) with different configurations.
-   There are multiple trained models generated throughout the whole tuning. 
+There are multiple trained models generated throughout the whole tuning. 
 
 2. To obtain the trained model with highest accuracy, go to the `Overview Page` and check the top 10 trials with best accuracy 
-   <img src="https://lh3.googleusercontent.com/-nUV6DIuojdw/X1r3Fzve2TI/AAAAAAAAAdU/SYO259Bld24Lzhvsn7UfJu8XT7NGnpOBQCK8BGAsYHg/s0/2020-09-10.png"/>
+<img src="https://lh3.googleusercontent.com/-nUV6DIuojdw/X1r3Fzve2TI/AAAAAAAAAdU/SYO259Bld24Lzhvsn7UfJu8XT7NGnpOBQCK8BGAsYHg/s0/2020-09-10.png"/>
 
 3. Each row of the table represent different trials. The default metrics is the accuracy. Trial with ID 'DKqsP' is the best in this example 
 
 4. The directory of the trained model is specified in the user training program. Here are the output directories of training programs:
-
-   | Training program | output directory                           |
-   | ---------------- | ------------------------------------------ |
-   | ELMO             | {working_dir}/output_model                 |
-   | mBart            | {working_dir}/output_model                 |
-   | MASS             | {working_dir}/checkpoints/mass/pretraining |
+   
+    | Training program | output directory |
+    | ---------------- | ---------------- |
+    | ELMO | {working_dir}/output_model |
+    | mBart | {working_dir}/output_model |
+    | MASS | {working_dir}/checkpoints/mass/pretraining |
 
 5. With output directory and trial ID (DKqsP), you can check the trained model by going to directory 
-
 ```
 {output directory}/DKqsP 
 ```
 
 ## Specify GPU 
-
 The number of GPU and the index of GPU are speicified in `config.yml` in the working directory. You can change `gpuNum` and `gpuIndices` to specific the gpu that the training program runs on. For details, please check the comments on the `config.yml`
 
 ## Execute trials in parallel
@@ -402,7 +394,7 @@ We edit parameters `trialConcurrency` and `gpuNum` in `trial` section.
      gpuIndices: "0,1,2,3,4,5,6,7"
    EOF
    ```
-   
+
 ## Debugging
 
 ### NNI Error
