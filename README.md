@@ -6,15 +6,15 @@
 
    ```bash
    pip install nni && \
-   wget https://github.com/tftuner/prototype_user_guide/releases/download/v2/CUHKPrototypeTunerV2-2-py3-none-any.whl && \
-   nnictl package install CUHKPrototypeTunerV2-2-py3-none-any.whl
+   wget https://github.com/vincentcheny/hpo-training/releases/download/cuhk_prototype_tuner_v2_2.1/CUHKPrototypeTunerV2-2.1-py3-none-any.whl && \
+   nnictl package install CUHKPrototypeTunerV2-2.1-py3-none-any.whl
    ```
 
 2. if success install, you should see this output  in the command line
 
    ```bash
    Installing collected packages: CUHKPrototypeTunerV2
-   Successfully installed CUHKPrototypeTunerV2-2
+   Successfully installed CUHKPrototypeTunerV2-2.1
    CUHKPrototypeTunerV2 installed!
    ```
 
@@ -39,8 +39,6 @@
    {
        "epoch":{"_type": "uniform", "_value": [5, 50]},
        "batch_size":{"_type": "uniform", "_value": [64, 512]},
-       "optimizer":{"_type":"choice","_value":["Adag","Adam","Rmsp"]},
-       
        "inter_op_parallelism_threads":{"_type":"choice","_value":[1,2,3,4]},
        "intra_op_parallelism_threads":{"_type":"choice","_value":[2,4,6,8,10,12]},
        "infer_shapes":{"_type":"choice","_value":[0,1]},
@@ -87,8 +85,8 @@
 5. Replace `bilm/training.py` and `train_elmo.py` to apply configuration from tuner and report performance metrics
 
 ```bash
-wget https://github.com/tftuner/prototype_user_guide/releases/download/v2/training.py -O bilm/training.py && \
-wget https://github.com/tftuner/prototype_user_guide/releases/download/v2/train_elmo.py -O bin/train_elmo.py 
+wget https://raw.githubusercontent.com/wuzhuoming/CUHKPrototypeTunerV2/fix_elmo/training.py -O bilm/training.py && \
+wget https://raw.githubusercontent.com/wuzhuoming/CUHKPrototypeTunerV2/fix_elmo/train_elmo.py -O bin/train_elmo.py 
 ```
 
 6. The tuning is ready to [start](#start-tuning) 
@@ -106,9 +104,9 @@ wget https://github.com/tftuner/prototype_user_guide/releases/download/v2/train_
    ```bash
    mkdir user_dir
    
-   wget https://github.com/tftuner/prototype_user_guide/releases/download/v2/__init__.py -O user_dir/__init__.py
+   wget https://raw.githubusercontent.com/wuzhuoming/CUHKPrototypeTunerV2/fix_elmo/__init__.py -O user_dir/__init__.py
    
-   wget https://github.com/tftuner/prototype_user_guide/releases/download/v2/translation_multi_simple_epoch_nni.py -O user_dir/translation_multi_simple_epoch_nni.py
+   wget https://raw.githubusercontent.com/wuzhuoming/CUHKPrototypeTunerV2/fix_elmo/translation_multi_simple_epoch_nni.py -O user_dir/translation_multi_simple_epoch_nni.py
    ```
 
 3. Create file  ``search_space.json`` to define the search space of hyperparameters and hardware parameters. Execute: 
@@ -163,7 +161,7 @@ wget https://github.com/tftuner/prototype_user_guide/releases/download/v2/train_
 5. Download the tuner program "wrap_program_mbart.py"
 
    ```bash
-   wget https://github.com/tftuner/prototype_user_guide/releases/download/v2/wrap_program_mbart.py
+   wget https://raw.githubusercontent.com/wuzhuoming/CUHKPrototypeTunerV2/fix_elmo/wrap_program_mbart.py
    ```
 
 6. The tuning is ready to [start](#start-tuning).
@@ -236,13 +234,13 @@ wget https://github.com/tftuner/prototype_user_guide/releases/download/v2/train_
 5. Download file "wrap_program_mass.py" in the same directory of "config.yml".
 
    ```bash
-   wget https://github.com/tftuner/prototype_user_guide/releases/download/v2/wrap_program_mass.py
+   wget https://raw.githubusercontent.com/wuzhuoming/CUHKPrototypeTunerV2/fix_elmo/wrap_program_mass.py
    ```
 
 6. Replace `mass/xmasked_seq2seq.py` to apply configuration from tuner and report performance metrics
 
 ```bash
-wget https://github.com/tftuner/prototype_user_guide/releases/download/v2/xmasked_seq2seq.py -O mass/xmasked_seq2seq.py
+wget https://raw.githubusercontent.com/wuzhuoming/CUHKPrototypeTunerV2/fix_elmo/xmasked_seq2seq.py -O mass/xmasked_seq2seq.py
 ```
 
 6. The tuning is ready to [start](#start-tuning) 
@@ -453,8 +451,7 @@ Clicking the two blue buttons will show you the corresponding contents. Or once 
 
 ``stderr`` contain the error message generated from the training program.
 
-## Remarks for important changes between v1 and v2
-Here are some important changes from v1 to v2
+## Upgrade from V1
 
 1. Config file
 
@@ -477,10 +474,6 @@ Here are some important changes from v1 to v2
    ```
 
    ``num_epochs`` refers to the maximum or commonly-used number of epochs in your training, e.g. 40.
-
-2. ML programs
-
-There are some news changes to the ML programs. Please following the instruction above to update that 3 ML programs
 
 2. Directory of model checkpoint:
 
