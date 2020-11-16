@@ -5,7 +5,7 @@ import signal
 import subprocess
 import shlex
 import psutil
-import dfhb
+import cuhk_prototype_tuner_v2
 import logging
 import shutil
 
@@ -46,7 +46,7 @@ pretrained_model="/research/d3/zmwu/model/mbart_company_version/mbart.cc25/model
 user_dir="/research/d3/zmwu/model/mbart_company_version/mbart"
 save_dir="/research/d3/zmwu/model/mbart_company_version/ckpt"
 
-is_load,load_path,save_path,budget = dfhb.preprocess(t_id,params,save_dir)
+is_load,load_path,save_path,budget = cuhk_prototype_tuner_v2.preprocess(t_id,params,save_dir)
 
 if not os.path.exists(save_path):
     os.makedirs(save_path)
