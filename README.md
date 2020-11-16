@@ -450,11 +450,11 @@ Clicking the two blue buttons will show you the corresponding contents. Or once 
 
 ``stderr`` contain the error message generated from the training program.
 
-## Upgrade from V1
+## Remarks for important changes between v1 and v2
 
 1. Config file
 
-   There is a necessary modification in config file. Please replace the corresponding codes according to the following example.
+   There is a necessary modification in config file when upgrading from v1 to v2. Please replace the corresponding codes according to the following example.
 
    ### Original (CUHKPrototypeTuner):
 
@@ -491,4 +491,15 @@ Clicking the two blue buttons will show you the corresponding contents. Or once 
    ```
 
    During tuning, the tuner would maintain and may utilize such directories. Please do not delete them unless the training is finished or you are sure about such deletion.
+
+## Patch for gpu_metrics issue
+
+There is a bug in NNI when it reads gpu_metrics in some scenarios. To solve it, please run the following 2 commands to patch a file. Please remind that this needs to be done again whenever NNI is reinstalled.
+
+```bash
+nni_path=`python -c "from nni.package_utils import get_nni_installation_path as func;print(func())"`
+wget https://github.com/tftuner/prototype_user_guide/releases/download/v2.0.1/gpuScheduler.js -O $nni_path/training_service/local/gpuScheduler.js
+```
+
+
 
