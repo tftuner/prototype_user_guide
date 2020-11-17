@@ -5,7 +5,7 @@ import signal
 import subprocess
 import shlex
 import psutil
-import dfhb
+import cuhk_prototype_tuner_v2
 import logging
 import shutil
 
@@ -56,7 +56,7 @@ decoder_layers=6
 word_mask=0.3
 
 
-is_load,load_path,save_path,budget = dfhb.preprocess(t_id,params,save_dir)
+is_load,load_path,save_path,budget = cuhk_prototype_tuner_v2.preprocess(t_id,params,save_dir)
 
 
 if not os.path.exists(save_path):
@@ -125,8 +125,7 @@ else:
   logging.info("generate process finish and exit normally.")
 
 
-
-os.system("cat %s | grep -P \"^D\" | cut -f 3- | sacrebleu %s"%(result_file,target_file))
+bsf = os.popen("cat %s | grep -P \"^D\" | cut -f 3- | sacrebleu %s"%(result_file,target_file))
 bs = float(bsf.readline())
 print(bs)
 
