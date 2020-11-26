@@ -98,7 +98,6 @@ if __name__ == '__main__':
 
     ### NNI modification ###
     params = {
-      'epoch':1,
       'batch_size': 128,
       'inter_op_parallelism_threads':1,
       'intra_op_parallelism_threads':2,
