@@ -676,9 +676,8 @@ def train(options, data, n_gpus, gpu_index, tf_save_dir, tf_log_dir,session_conf
 
         # set up the optimizer
         lr = options.get('learning_rate', 0.2)
-        opt = tf.train.AdagradOptimizer(learning_rate=lr,initial_accumulator_value=1.0)
-        # opt = tf.train.RMSPropOptimizer(lr, decay=0.9, momentum=0.0, epsilon=1e-10, use_locking=False,centered=False)
-
+        opt = tf.train.AdagradOptimizer(learning_rate=lr,
+                                        initial_accumulator_value=1.0)
 
         # calculate the gradients on each GPU
         tower_grads = []
@@ -687,9 +686,9 @@ def train(options, data, n_gpus, gpu_index, tf_save_dir, tf_log_dir,session_conf
             'train_perplexity', [],
             initializer=tf.constant_initializer(0.0), trainable=False)
         norm_summaries = []
-        for k in gpu_index:
+        for k in range(n_gpus):
             with tf.device('/gpu:%d' % k):
-                with tf.variable_scope('lm', reuse=tf.AUTO_REUSE):
+                with tf.variable_scope('lm', reuse=k > 0):
                     # calculate the loss for one model replica and get
                     #   lstm states
                     model = LanguageModel(options, True)
@@ -752,7 +751,6 @@ def train(options, data, n_gpus, gpu_index, tf_save_dir, tf_log_dir,session_conf
 
     # do the training loop
     bidirectional = options.get('bidirectional', False)
-    # with tf.Session(config=tf.ConfigProto(allow_soft_placement=True)) as sess:
     with tf.Session(config=session_config) as sess:
         sess.run(init)
 
@@ -867,7 +865,8 @@ def train(options, data, n_gpus, gpu_index, tf_save_dir, tf_log_dir,session_conf
                     feed_dict=feed_dict
                 )
                 init_state_values = ret[4:]
-                
+            
+            final_perplexity = ret[2] 
 
             if batch_no % 1250 == 0:
                 summary_writer.add_summary(ret[3], batch_no)
@@ -885,10 +884,7 @@ def train(options, data, n_gpus, gpu_index, tf_save_dir, tf_log_dir,session_conf
             if batch_no == n_batches_total:
                 # done training!
                 break
-
-            final_perplexity = ret[2]
-        return final_perplexity
-
+    return final_perplexity    
 
 
 def clip_by_global_norm_summary(t_list, clip_norm, norm_name, variables):
