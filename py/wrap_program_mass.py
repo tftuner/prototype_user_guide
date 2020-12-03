@@ -69,9 +69,11 @@ if is_load:
   
   train_cmd = "fairseq-train %s --user-dir %s --task xmasked_seq2seq --source-langs en,zh --target-langs en,zh --langs en,zh --arch xtransformer --mass_steps en-en,zh-zh --memt_steps en-zh,zh-en --save-dir %s --output_dir %s --lr-scheduler inverse_sqrt --min-lr 1e-09 --criterion label_smoothed_cross_entropy --lm-bias --lazy-load --seed %d --log-format json --max-tokens %d --update-freq %d --encoder-normalize-before  --decoder-normalize-before --decoder-attention-heads %d --encoder-attention-heads %d --decoder-embed-dim %d --encoder-embed-dim %d --decoder-ffn-embed-dim %d --encoder-ffn-embed-dim %d --encoder-layers %d --decoder-layers %d --max-update 100000000 --max-epoch %d --keep-interval-updates 100 --save-interval-updates 3000  --log-interval 10 --save-interval %d --restore-file %s --share-decoder-input-output-embed --valid-lang-pairs en-zh --word_mask %f --ddp-backend=no_c10d --clip-norm %f --lr %f --dropout %f --attention-dropout %f --relu-dropout %f --optimizer %s --inter %d --intra %d --benchmark %d --allow_tf32 %d --batch-size %d"%(data_dir,user_dir,save_path,save_path,seed,max_tokens,update_freq,attention_heads,attention_heads,embed_dim,embed_dim,ffn_embed_dim,ffn_embed_dim,encoder_layers,decoder_layers,params['TRIAL_BUDGET'],params['TRIAL_BUDGET'],load_file,word_mask,params['clip-norm'],params['lr'],params['dropout'],params['attention-dropout'],params['relu-dropout'],params['optimizer'],int(params['inter_op_parallelism_threads']),int(params['intra_op_parallelism_threads']),int(params['benchmark']),int(params['allow_tf32']),train_batch_size)
   
-  train_process = subprocess.Popen(shlex.split(train_cmd),shell=False)
+  train_process = subprocess.Popen(shlex.split(train_cmd),stdout=subprocess.PIPE,shell=False)
   train_pid = train_process.pid
   logging.info("train process start,process ID is %d" % train_pid)
+  for stdout_line in iter(train_process.stdout.readline, b""):
+    print(stdout_line.decode(), end='')
   train_process.wait()
   logging.info('train process finish, check if train process close properly...')
   if psutil.pid_exists(train_pid):
@@ -88,9 +90,11 @@ else:
 
   train_cmd = "fairseq-train %s --user-dir %s --task xmasked_seq2seq --source-langs en,zh --target-langs en,zh --langs en,zh --arch xtransformer --mass_steps en-en,zh-zh --memt_steps en-zh,zh-en --save-dir %s --output_dir %s --lr-scheduler inverse_sqrt --min-lr 1e-09 --criterion label_smoothed_cross_entropy --lm-bias --lazy-load --seed %d --log-format json --max-tokens %d --update-freq %d --encoder-normalize-before  --decoder-normalize-before --decoder-attention-heads %d --encoder-attention-heads %d --decoder-embed-dim %d --encoder-embed-dim %d --decoder-ffn-embed-dim %d --encoder-ffn-embed-dim %d --encoder-layers %d --decoder-layers %d --max-update 100000000 --max-epoch %d --keep-interval-updates 100 --save-interval-updates 3000  --log-interval 50 --save-interval %d --share-decoder-input-output-embed --valid-lang-pairs en-zh --word_mask %f --ddp-backend=no_c10d --clip-norm %f --lr %f --dropout %f --attention-dropout %f --relu-dropout %f --optimizer %s --inter %d --intra %d --benchmark %d --allow_tf32 %d --batch-size %d"%(data_dir,user_dir,save_path,save_path,seed,max_tokens,update_freq,attention_heads,attention_heads,embed_dim,embed_dim,ffn_embed_dim,ffn_embed_dim,encoder_layers,decoder_layers,budget,budget,word_mask,params['clip-norm'],params['lr'],params['dropout'],params['attention-dropout'],params['relu-dropout'],params['optimizer'],int(params['inter_op_parallelism_threads']),int(params['intra_op_parallelism_threads']),int(params['benchmark']),int(params['allow_tf32']),train_batch_size)
 
-  train_process = subprocess.Popen(shlex.split(train_cmd),shell=False)
+  train_process = subprocess.Popen(shlex.split(train_cmd),stdout=subprocess.PIPE,shell=False)
   train_pid = train_process.pid
   logging.info("train process start,process ID is %d" % train_pid)
+  for stdout_line in iter(train_process.stdout.readline, b""):
+    print(stdout_line.decode(), end='')
   train_process.wait()
   logging.info('train process finish, check if train process close properly...')
   if psutil.pid_exists(train_pid):
