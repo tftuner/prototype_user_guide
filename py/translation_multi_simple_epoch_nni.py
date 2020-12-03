@@ -20,7 +20,7 @@ from fairseq.tasks import register_task, LegacyFairseqTask
 from fairseq.data.multilingual.sampling_method import SamplingMethod
 from fairseq.data.multilingual.multilingual_data_manager import MultilingualDatasetManager
 
-import nni  ## NNI modification
+
 
 
 ###
