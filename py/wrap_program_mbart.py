@@ -59,9 +59,12 @@ if is_load:
 
   train_cmd = "fairseq-train %s --user-dir %s --save-dir %s --encoder-normalize-before --decoder-normalize-before --arch mbart_large --layernorm-embedding --task translation_multi_simple_epoch_nni --sampling-method \"temperature\" --sampling-temperature 1.5 --encoder-langtok \"src\" --decoder-langtok --lang-dict \"%s\" --lang-pairs \"%s\" --criterion label_smoothed_cross_entropy --min-lr -1  --max-update 20000 --empty-cache-freq 4 --attention-dropout 0.1 --weight-decay 0.0 --max-tokens 2048 --update-freq 4 --fp16 --no-epoch-checkpoints --seed 222 --log-format simple --log-interval 10 --dropout %f --label-smoothing %f --lr %f  --lr-scheduler %s --warmup-updates %d --optimizer %s --inter %d --intra %d --benchmark %d --allow_tf32 %d --restore-file %s --max-epoch %d --save-interval %d --batch-size %d "%(path_2_data,user_dir,save_path,lang_list,lang_pairs,params['dropout'],params['label_smooth'],params['lr'],params['lr_scheduler'],params['warmup_update'],params['optimizer'],int(params['inter_op_parallelism_threads']),int(params['intra_op_parallelism_threads']),int(params['benchmark']),int(params['allow_tf32']),load_file,params['TRIAL_BUDGET'],params['TRIAL_BUDGET'],train_batch_size)
 
-  train_process = subprocess.Popen(shlex.split(train_cmd),shell=False)
+  train_process = subprocess.Popen(shlex.split(train_cmd),stdout=subprocess.PIPE,shell=False,bufsize=1)
   train_pid = train_process.pid
   logging.info("train process start,process ID is %d" % train_pid)
+  for stdout_line in iter(train_process.stdout.readline, b""):
+    print(stdout_line.decode(),end='')
+  train_process.stdout.close()
   train_process.wait()
   logging.info('train process finish, check if train process close properly...')
   if psutil.pid_exists(train_pid):
@@ -78,9 +81,12 @@ else:
 
   train_cmd = "fairseq-train %s --user-dir %s --save-dir %s --finetune-from-model %s --encoder-normalize-before --decoder-normalize-before --arch mbart_large --layernorm-embedding --task translation_multi_simple_epoch_nni --sampling-method \"temperature\" --sampling-temperature 1.5 --encoder-langtok \"src\" --decoder-langtok --lang-dict \"%s\" --lang-pairs \"%s\" --criterion label_smoothed_cross_entropy --min-lr -1  --max-update 20000 --empty-cache-freq 4 --attention-dropout 0.1 --weight-decay 0.0 --max-tokens 2048 --update-freq 4 --fp16  --no-epoch-checkpoints --seed 222 --log-format simple --log-interval 10 --dropout %f --label-smoothing %f --lr %f  --lr-scheduler %s --warmup-updates %d --optimizer %s --inter %d --intra %d --benchmark %d --allow_tf32 %d  --max-epoch %d --save-interval %d --batch-size %d "%(path_2_data,user_dir,save_path,pretrained_model,lang_list,lang_pairs,params['dropout'],params['label_smooth'],params['lr'],params['lr_scheduler'],params['warmup_update'],params['optimizer'],int(params['inter_op_parallelism_threads']),int(params['intra_op_parallelism_threads']),int(params['benchmark']),int(params['allow_tf32']),budget,budget,train_batch_size)
 
-  train_process = subprocess.Popen(shlex.split(train_cmd),shell=False)
+  train_process = subprocess.Popen(shlex.split(train_cmd),stdout=subprocess.PIPE,shell=False,bufsize=1)
   train_pid = train_process.pid
   logging.info("train process start,process ID is %d" % train_pid)
+  for stdout_line in iter(train_process.stdout.readline, b""):
+    print(stdout_line.decode(),end='')
+  train_process.stdout.close()
   train_process.wait()
   logging.info('train process finish, check if train process close properly...')
   if psutil.pid_exists(train_pid):
@@ -102,9 +108,12 @@ spm = "/research/d3/zmwu/model/mbart/mbart.cc25/sentence.bpe.model"
 
 generate_cmd = "fairseq-generate --path=%s %s --user-dir %s --task translation_multi_simple_epoch_nni --encoder-langtok 'src' --decoder-langtok --gen-subset %s -s %s -t %s --lang-dict %s --lang-pairs %s --bpe 'sentencepiece' --empty-cache-freq 1 --sentencepiece-model %s --scoring 'sacrebleu' --fp16 --max-sentences 128 --results-path %s"%(ckpt_path,path_2_data,user_dir,gen_subset,"en_XX","zh_CN",lang_list,lang_pairs,spm,save_path)
 
-generate_process = subprocess.Popen(shlex.split(generate_cmd),shell=False)
+generate_process = subprocess.Popen(shlex.split(generate_cmd),stdout=subprocess.PIPE,shell=False,bufsize=1)
 generate_pid = generate_process.pid
-logging.info("generate process start,process ID is %d" % generate_pid) 
+logging.info("generate process start,process ID is %d" % generate_pid)
+for stdout_line in iter(generate_process.stdout.readline, b""):
+  print(stdout_line.decode(),end='')
+generate_process.stdout.close()
 generate_process.wait()
 logging.info('generate process finish, check if generate process close properly...')
 if psutil.pid_exists(generate_pid):
