@@ -84,8 +84,8 @@
 5. Replace `bilm/training.py` and `train_elmo.py` to apply configuration from tuner and report performance metrics
 
 ```bash
-wget https://github.com/tftuner/prototype_user_guide/releases/download/v2.0.1/training.py -O bilm/training.py && \
-wget https://github.com/tftuner/prototype_user_guide/releases/download/v2.0.1/train_elmo.py -O bin/train_elmo.py 
+wget https://github.com/tftuner/prototype_user_guide/releases/download/V2.0.2/training.py -O bilm/training.py && \
+wget https://github.com/tftuner/prototype_user_guide/releases/download/V2.0.2/train_elmo.py -O bin/train_elmo.py 
 ```
 
 6. The tuning is ready to [start](#start-tuning) 
@@ -103,9 +103,9 @@ wget https://github.com/tftuner/prototype_user_guide/releases/download/v2.0.1/tr
    ```bash
    mkdir user_dir
    
-   wget https://github.com/tftuner/prototype_user_guide/releases/download/v2.0.1/__init__.py -O user_dir/__init__.py
+   wget https://github.com/tftuner/prototype_user_guide/releases/download/V2.0.2/__init__.py -O user_dir/__init__.py
    
-   wget https://github.com/tftuner/prototype_user_guide/releases/download/v2.0.1/translation_multi_simple_epoch_nni.py -O user_dir/translation_multi_simple_epoch_nni.py
+   wget https://github.com/tftuner/prototype_user_guide/releases/download/V2.0.2/translation_multi_simple_epoch_nni.py -O user_dir/translation_multi_simple_epoch_nni.py
    ```
 
 3. Create file  ``search_space.json`` to define the search space of hyperparameters and hardware parameters. Execute: 
@@ -160,7 +160,7 @@ wget https://github.com/tftuner/prototype_user_guide/releases/download/v2.0.1/tr
 5. Download the tuner program "wrap_program_mbart.py"
 
    ```bash
-   wget https://github.com/tftuner/prototype_user_guide/releases/download/v2.0.1/wrap_program_mbart.py
+   wget https://github.com/tftuner/prototype_user_guide/releases/download/V2.0.2/wrap_program_mbart.py
    ```
 
 6. The tuning is ready to [start](#start-tuning).
@@ -233,13 +233,13 @@ wget https://github.com/tftuner/prototype_user_guide/releases/download/v2.0.1/tr
 5. Download file "wrap_program_mass.py" in the same directory of "config.yml".
 
    ```bash
-   wget https://github.com/tftuner/prototype_user_guide/releases/download/v2.0.1/wrap_program_mass.py
+   wget https://github.com/tftuner/prototype_user_guide/releases/download/V2.0.2/wrap_program_mass.py
    ```
 
 6. Replace `mass/xmasked_seq2seq.py` to apply configuration from tuner and report performance metrics
 
 ```bash
-wget https://github.com/tftuner/prototype_user_guide/releases/download/v2.0.1/xmasked_seq2seq.py -O mass/xmasked_seq2seq.py
+wget https://github.com/tftuner/prototype_user_guide/releases/download/V2.0.2/xmasked_seq2seq.py -O mass/xmasked_seq2seq.py
 ```
 
 6. The tuning is ready to [start](#start-tuning) 
