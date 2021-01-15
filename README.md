@@ -180,7 +180,7 @@ wget https://github.com/tftuner/prototype_user_guide/releases/download/V2.0.3/tr
    lang_tgt = ["zh_CN","en_XX"]
    ```
 
-   Be careful that the number of source language, the number of target language and the number of GPU should be equal.
+   Be careful that the number of source language and the number of target language should be equal.
 
    
 
@@ -196,6 +196,8 @@ wget https://github.com/tftuner/prototype_user_guide/releases/download/V2.0.3/tr
    ```python
    {output directory}/{trialID}-{trialEpochs}-{configID}/{lang_src}_to_{lang_tgt}
    ```
+   
+   (5) "wrap_program_mbart.py" will automatically assign one generate task to one avaliable GPU, when all GPUs are busy, rest generate tasks will wait and assign to idle GPU once the occupied GPU is release.
 
 7. The tuning is ready to [start](#start-tuning).
 
