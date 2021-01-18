@@ -38,7 +38,7 @@ params.update(tuned_params)
 t_id = nni.get_trial_id()
 
 
-
+train_batch_size = 1
 path_2_data="/research/d3/zmwu/model/mbart_company_version/post_process/en-zh_100/"
 lang_pairs="en_XX-zh_CN,zh_CN-en_XX"
 lang_list="/research/d3/zmwu/model/mbart_company_version/lang_list"
@@ -57,7 +57,7 @@ if is_load:
   load_file = os.path.join(load_path,"checkpoint_last.pt")
   s_time = time.time()
 
-  train_cmd = "fairseq-train %s --user-dir %s --save-dir %s --encoder-normalize-before --decoder-normalize-before --arch mbart_large --layernorm-embedding --task translation_multi_simple_epoch_nni --sampling-method \"temperature\" --sampling-temperature 1.5 --encoder-langtok \"src\" --decoder-langtok --lang-dict \"%s\" --lang-pairs \"%s\" --criterion label_smoothed_cross_entropy --min-lr -1 --empty-cache-freq 4 --attention-dropout 0.1 --weight-decay 0.0 --max-tokens 2048 --update-freq 4 --fp16 --no-epoch-checkpoints --seed 222 --log-format simple --log-interval 10 --dropout %f --label-smoothing %f --lr %f  --lr-scheduler %s --warmup-updates %d --optimizer %s --inter %d --intra %d --benchmark %d --allow_tf32 %d --restore-file %s --max-epoch %d --save-interval %d"%(path_2_data,user_dir,save_path,lang_list,lang_pairs,params['dropout'],params['label_smooth'],params['lr'],params['lr_scheduler'],params['warmup_update'],params['optimizer'],int(params['inter_op_parallelism_threads']),int(params['intra_op_parallelism_threads']),int(params['benchmark']),int(params['allow_tf32']),load_file,params['TRIAL_BUDGET'],params['TRIAL_BUDGET'])
+  train_cmd = "fairseq-train %s --user-dir %s --save-dir %s --encoder-normalize-before --decoder-normalize-before --arch mbart_large --layernorm-embedding --task translation_multi_simple_epoch_nni --sampling-method \"temperature\" --sampling-temperature 1.5 --encoder-langtok \"src\" --decoder-langtok --lang-dict \"%s\" --lang-pairs \"%s\" --criterion label_smoothed_cross_entropy --min-lr -1 --empty-cache-freq 4 --attention-dropout 0.1 --weight-decay 0.0 --max-tokens 2048 --update-freq 4 --fp16 --no-epoch-checkpoints --seed 222 --log-format simple --log-interval 10 --dropout %f --label-smoothing %f --lr %f  --lr-scheduler %s --warmup-updates %d --optimizer %s --inter %d --intra %d --benchmark %d --allow_tf32 %d --restore-file %s --max-epoch %d --save-interval %d --batch-size %d "%(path_2_data,user_dir,save_path,lang_list,lang_pairs,params['dropout'],params['label_smooth'],params['lr'],params['lr_scheduler'],params['warmup_update'],params['optimizer'],int(params['inter_op_parallelism_threads']),int(params['intra_op_parallelism_threads']),int(params['benchmark']),int(params['allow_tf32']),load_file,params['TRIAL_BUDGET'],params['TRIAL_BUDGET'],train_batch_size)
 
   train_process = subprocess.Popen(shlex.split(train_cmd),stdout=subprocess.PIPE,shell=False,bufsize=1)
   train_pid = train_process.pid
@@ -79,7 +79,7 @@ else:
   logging.info("No pervious trianing found.")
   s_time = time.time()
 
-  train_cmd = "fairseq-train %s --user-dir %s --save-dir %s --finetune-from-model %s --encoder-normalize-before --decoder-normalize-before --arch mbart_large --layernorm-embedding --task translation_multi_simple_epoch_nni --sampling-method \"temperature\" --sampling-temperature 1.5 --encoder-langtok \"src\" --decoder-langtok --lang-dict \"%s\" --lang-pairs \"%s\" --criterion label_smoothed_cross_entropy --min-lr -1   --empty-cache-freq 4 --attention-dropout 0.1 --weight-decay 0.0 --max-tokens 2048 --update-freq 4 --fp16  --no-epoch-checkpoints --seed 222 --log-format simple --log-interval 10 --dropout %f --label-smoothing %f --lr %f  --lr-scheduler %s --warmup-updates %d --optimizer %s --inter %d --intra %d --benchmark %d --allow_tf32 %d  --max-epoch %d --save-interval %d"%(path_2_data,user_dir,save_path,pretrained_model,lang_list,lang_pairs,params['dropout'],params['label_smooth'],params['lr'],params['lr_scheduler'],params['warmup_update'],params['optimizer'],int(params['inter_op_parallelism_threads']),int(params['intra_op_parallelism_threads']),int(params['benchmark']),int(params['allow_tf32']),budget,budget)
+  train_cmd = "fairseq-train %s --user-dir %s --save-dir %s --finetune-from-model %s --encoder-normalize-before --decoder-normalize-before --arch mbart_large --layernorm-embedding --task translation_multi_simple_epoch_nni --sampling-method \"temperature\" --sampling-temperature 1.5 --encoder-langtok \"src\" --decoder-langtok --lang-dict \"%s\" --lang-pairs \"%s\" --criterion label_smoothed_cross_entropy --min-lr -1   --empty-cache-freq 4 --attention-dropout 0.1 --weight-decay 0.0 --max-tokens 2048 --update-freq 4 --fp16  --no-epoch-checkpoints --seed 222 --log-format simple --log-interval 10 --dropout %f --label-smoothing %f --lr %f  --lr-scheduler %s --warmup-updates %d --optimizer %s --inter %d --intra %d --benchmark %d --allow_tf32 %d  --max-epoch %d --save-interval %d --batch-size %d "%(path_2_data,user_dir,save_path,pretrained_model,lang_list,lang_pairs,params['dropout'],params['label_smooth'],params['lr'],params['lr_scheduler'],params['warmup_update'],params['optimizer'],int(params['inter_op_parallelism_threads']),int(params['intra_op_parallelism_threads']),int(params['benchmark']),int(params['allow_tf32']),budget,budget,train_batch_size)
 
   train_process = subprocess.Popen(shlex.split(train_cmd),stdout=subprocess.PIPE,shell=False,bufsize=1)
   train_pid = train_process.pid
@@ -110,43 +110,79 @@ spm = "/research/d3/zmwu/model/mbart/mbart.cc25/sentence.bpe.model"
 lang_src = ["en_XX","zh_CN"]
 lang_tgt = ["zh_CN","en_XX"]
 GPU_list = os.environ["CUDA_VISIBLE_DEVICES"].strip().split(",")
-generate_process_queue = []
-generate_process_pid = []
+
+# key = GPU index(char) ; value = generate process obj
+generate_process_dict = {}
 bleu_score_list = []
 
 assert(len(lang_tgt) == len(lang_src),"number of src language must equal to number of taget language!")
-assert(len(GPU_list) == len(lang_src),"number of visiable GPU must equal to number of src language!")
 
 
 ## create generate process for each language and assign 1 GPU to run it.
-for i in range(len(GPU_list)):
+for i in range(len(lang_src)):
   dir_name = lang_src[i] + "_to_" + lang_tgt[i]
   generate_process_output_dir = os.path.join(save_path,dir_name)
 
   if not os.path.exists(generate_process_output_dir):
     os.makedirs(generate_process_output_dir)
 
-  os.environ["CUDA_VISIBLE_DEVICES"] = GPU_list[i]
-  logging.info("using GPU:%s"%os.environ["CUDA_VISIBLE_DEVICES"])
 
-  generate_cmd = "fairseq-generate --path=%s %s --user-dir %s --task translation_multi_simple_epoch_nni --encoder-langtok 'src' --decoder-langtok --gen-subset %s -s %s -t %s --lang-dict %s --lang-pairs %s --bpe 'sentencepiece' --empty-cache-freq 1 --sentencepiece-model %s --scoring 'sacrebleu' --fp16 --max-sentences 128 --results-path %s"%(ckpt_path,path_2_data,user_dir,gen_subset,lang_src[i],lang_tgt[i],lang_list,lang_pairs,spm,generate_process_output_dir)
+  if len(generate_process_dict) < len(GPU_list):
+    os.environ["CUDA_VISIBLE_DEVICES"] = GPU_list[i]
+    logging.info("using GPU:%s"%os.environ["CUDA_VISIBLE_DEVICES"])
 
-  generate_process = subprocess.Popen(shlex.split(generate_cmd),shell=False,bufsize=1)
-  generate_pid = generate_process.pid
-  logging.info("generate process start,process ID is %d" % generate_pid)
-  generate_process_pid.append(generate_pid)
-  generate_process_queue.append(generate_process)
+    generate_cmd = "fairseq-generate --path=%s %s --user-dir %s --task translation_multi_simple_epoch_nni --encoder-langtok 'src' --decoder-langtok --gen-subset %s -s %s -t %s --lang-dict %s --lang-pairs %s --bpe 'sentencepiece' --empty-cache-freq 1 --sentencepiece-model %s --scoring 'sacrebleu' --fp16 --max-sentences 128 --results-path %s"%(ckpt_path,path_2_data,user_dir,gen_subset,lang_src[i],lang_tgt[i],lang_list,lang_pairs,spm,generate_process_output_dir)
+
+    generate_process = subprocess.Popen(shlex.split(generate_cmd),shell=False,bufsize=1)
+    logging.info("generate process start,process ID is %d" % generate_process.pid)
+    generate_process_dict[GPU_list[i]] = generate_process
+  
+  else:
+    logging.info("all GPUs are assigned tasks, wait for idle GPU.")
+
+    waitting = True
+    free_gpu_index = None
+
+    while waitting:
+      for g in GPU_list:
+        proc_state = subprocess.Popen.poll(generate_process_dict[g])
+        if proc_state == 0:
+            logging.info('generate process %d finish, check if generate process close properly...' % generate_process_dict[g].pid)
+            if psutil.pid_exists(generate_process_dict[g].pid):
+              logging.info("generate process %d still exists, kill it." % generate_process_dict[g].pid)
+              kill_process_and_children(generate_process_dict[g].pid)
+            else:
+              logging.info("generate process %d finish and exit normally." % generate_process_dict[g].pid)
+            free_gpu_index = g
+            waitting = False
+            break
+      if waitting == True:
+        logging.info("no idle GPU,sleep 10")
+        time.sleep(10)
+      else:
+        logging.info("find idle GPU %s" % free_gpu_index)
+
+
+    os.environ["CUDA_VISIBLE_DEVICES"] = free_gpu_index
+    logging.info("using GPU:%s"%os.environ["CUDA_VISIBLE_DEVICES"])
+
+    generate_cmd = "fairseq-generate --path=%s %s --user-dir %s --task translation_multi_simple_epoch_nni --encoder-langtok 'src' --decoder-langtok --gen-subset %s -s %s -t %s --lang-dict %s --lang-pairs %s --bpe 'sentencepiece' --empty-cache-freq 1 --sentencepiece-model %s --scoring 'sacrebleu' --fp16 --max-sentences 128 --results-path %s"%(ckpt_path,path_2_data,user_dir,gen_subset,lang_src[i],lang_tgt[i],lang_list,lang_pairs,spm,generate_process_output_dir)
+
+    generate_process = subprocess.Popen(shlex.split(generate_cmd),shell=False,bufsize=1)
+    logging.info("generate process start,process ID is %d" % generate_process.pid)
+    generate_process_dict[free_gpu_index] = generate_process
+
 
 
 ## wait for all generate process finish.
-for i in range(len(generate_process_queue)):
-  generate_process_queue[i].wait()
-  logging.info('generate process %d finish, check if generate process close properly...' % generate_process_pid[i])
-  if psutil.pid_exists(generate_process_pid[i]):
-    logging.info("generate process %d still exists, kill it." % generate_process_pid[i])
-    kill_process_and_children(generate_process_pid[i])
+for g in GPU_list:
+  generate_process_dict[g].wait()
+  logging.info('generate process %d finish, check if generate process close properly...' % generate_process_dict[g].pid)
+  if psutil.pid_exists(generate_process_dict[g].pid):
+    logging.info("generate process %d still exists, kill it." % generate_process_dict[g].pid)
+    kill_process_and_children(generate_process_dict[g].pid)
   else:
-    logging.info("generate process %d finish and exit normally." % generate_process_pid[i])
+    logging.info("generate process %d finish and exit normally." % generate_process_dict[g].pid)
 
 
 ## calculate bleu score for each language pair
