@@ -36,6 +36,7 @@ params = {
 tuned_params = nni.get_next_parameter() 
 params.update(tuned_params) 
 t_id = nni.get_trial_id()
+e_id = nni.get_experiment_id()
 
 
 train_batch_size = 1
@@ -204,6 +205,18 @@ for s in bleu_score_list:
   bs_sum = bs_sum + s
 final_bs = bs_sum / len(bleu_score_list)
 report_dict = {'runtime':spent_time,'default':final_bs,'maximize':['default']}
+is_save = cuhk_prototype_tuner_v2.postprocess(
+  e_id, 
+  t_id, 
+  report_dict,
+  params,
+  os.path.dirname(save_path)
+)
+if not is_save:
+  try:
+    logging.info(f"Don't save the current trial. Try to remove dir:{save_path}")
+    if os.path.exists(save_path):
+        shutil.rmtree(save_path)
+  except OSError as e:
+    print("Error: %s : %s" % (save_path, e.strerror))
 nni.report_final_result(report_dict)
-
-

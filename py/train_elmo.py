@@ -77,12 +77,12 @@ def main(args):
     if is_load:
       load_file = os.path.join(load_path,'model.ckpt')
       start = time.time()
-      final_perplexity = train(options, data, n_gpus,gpus_index_list,tf_save_dir, tf_log_dir,sess_config,restart_ckpt_file=load_file)  
+      final_perplexity = train(options, data, n_gpus,gpus_index_list,tf_save_dir, tf_log_dir,sess_config,restart_ckpt_file=load_file,e_id=e_id,t_id=t_id,params=params)  
       end = time.time()
       shutil.rmtree(load_path)
     else:
       start = time.time()
-      final_perplexity = train(options, data, n_gpus,gpus_index_list,tf_save_dir, tf_log_dir,sess_config)
+      final_perplexity = train(options, data, n_gpus,gpus_index_list,tf_save_dir, tf_log_dir,sess_config,e_id=e_id,t_id=t_id,params=params)
       end = time.time()
     spent_time = (end - start) / 3600.0
     report_dict = {'runtime':spent_time,'default':final_perplexity}   
@@ -112,7 +112,8 @@ if __name__ == '__main__':
     }
     tuned_params = nni.get_next_parameter() 
     params.update(tuned_params)
-    t_id = nni.get_trial_id() 
+    t_id = nni.get_trial_id()
+    e_id = nni.get_experiment_id() 
     ### NNI modification ###
 
     main(args)

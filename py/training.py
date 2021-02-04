@@ -6,6 +6,7 @@ import os
 import time
 import json
 import re
+import shutil
 
 import tensorflow as tf
 import numpy as np
@@ -14,6 +15,7 @@ from tensorflow.python.ops.init_ops import glorot_uniform_initializer
 
 from .data import Vocabulary, UnicodeCharsVocabulary, InvalidNumberOfCharacters
 
+import cuhk_prototype_tuner_v2
 
 DTYPE = 'float32'
 DTYPE_INT = 'int64'
@@ -662,7 +664,7 @@ def _get_feed_dict_from_X(X, start, end, model, char_inputs, bidirectional):
 
 
 def train(options, data, n_gpus, gpu_index, tf_save_dir, tf_log_dir,session_config,
-          restart_ckpt_file=None):
+          restart_ckpt_file=None, **kw):
 
     # not restarting so save the options
     if restart_ckpt_file is None:
@@ -883,6 +885,20 @@ def train(options, data, n_gpus, gpu_index, tf_save_dir, tf_log_dir,session_conf
 
             if batch_no == n_batches_total:
                 # done training!
+                is_save = cuhk_prototype_tuner_v2.postprocess(
+                    kw['e_id'], 
+                    kw['t_id'], 
+                    {'default': final_perplexity},
+                    kw['params'],
+                    os.path.dirname(tf_save_dir)
+                )
+                if not is_save:
+                    try:
+                        print(f"Don't save the current trial. Try to remove dir:{tf_save_dir}")
+                        if os.path.exists(tf_save_dir):
+                            shutil.rmtree(tf_save_dir)
+                    except OSError as e:
+                        print("Error: %s : %s" % (tf_save_dir, e.strerror))
                 break
     return final_perplexity    
 
