@@ -6,15 +6,15 @@
 
    ```bash
    pip install nni==1.9 && \
-   wget https://github.com/tftuner/prototype_user_guide/releases/download/v2.0.1/CUHKPrototypeTunerV2-2.0.1-py3-none-any.whl && \
-   nnictl package install CUHKPrototypeTunerV2-2.0.1-py3-none-any.whl
+   wget https://github.com/tftuner/prototype_user_guide/releases/download/v2.1.0/CUHKPrototypeTunerV2-2.1.0-py3-none-any.whl && \
+   nnictl package install CUHKPrototypeTunerV2-2.1.0-py3-none-any.whl
    ```
 
 2. if success install, you should see this output  in the command line
 
    ```bash
    Installing collected packages: CUHKPrototypeTunerV2
-   Successfully installed CUHKPrototypeTunerV2-2.0.1
+   Successfully installed CUHKPrototypeTunerV2-2.1.0
    CUHKPrototypeTunerV2 installed!
    ```
 
@@ -84,8 +84,8 @@
 5. Replace `bilm/training.py` and `train_elmo.py` to apply configuration from tuner and report performance metrics
 
 ```bash
-wget https://github.com/tftuner/prototype_user_guide/releases/download/V2.0.3/training.py -O bilm/training.py && \
-wget https://github.com/tftuner/prototype_user_guide/releases/download/V2.0.3/train_elmo.py -O bin/train_elmo.py 
+wget https://github.com/tftuner/prototype_user_guide/releases/download/V2.1.0/training.py -O bilm/training.py && \
+wget https://github.com/tftuner/prototype_user_guide/releases/download/V2.1.0/train_elmo.py -O bin/train_elmo.py 
 ```
 
 6. The tuning is ready to [start](#start-tuning) 
@@ -103,9 +103,9 @@ wget https://github.com/tftuner/prototype_user_guide/releases/download/V2.0.3/tr
    ```bash
    mkdir user_dir
    
-   wget https://github.com/tftuner/prototype_user_guide/releases/download/V2.0.3/__init__.py -O user_dir/__init__.py
+   wget https://github.com/tftuner/prototype_user_guide/releases/download/V2.1.0/__init__.py -O user_dir/__init__.py
    
-   wget https://github.com/tftuner/prototype_user_guide/releases/download/V2.0.3/translation_multi_simple_epoch_nni.py -O user_dir/translation_multi_simple_epoch_nni.py
+   wget https://github.com/tftuner/prototype_user_guide/releases/download/V2.1.0/translation_multi_simple_epoch_nni.py -O user_dir/translation_multi_simple_epoch_nni.py
    ```
 
 3. Create file  ``search_space.json`` to define the search space of hyperparameters and hardware parameters. Execute: 
@@ -160,7 +160,7 @@ wget https://github.com/tftuner/prototype_user_guide/releases/download/V2.0.3/tr
 5. Download the tuner program "wrap_program_mbart.py"
 
    ```bash
-   wget https://github.com/tftuner/prototype_user_guide/releases/download/V2.0.3/wrap_program_mbart.py
+   wget https://github.com/tftuner/prototype_user_guide/releases/download/V2.1.0/wrap_program_mbart.py
    ```
 
 6. Adjust for parallel fairseq-generate processes
@@ -269,13 +269,13 @@ wget https://github.com/tftuner/prototype_user_guide/releases/download/V2.0.3/tr
 5. Download file "wrap_program_mass.py" in the same directory of "config.yml".
 
    ```bash
-   wget https://github.com/tftuner/prototype_user_guide/releases/download/V2.0.3/wrap_program_mass.py
+   wget https://github.com/tftuner/prototype_user_guide/releases/download/V2.1.0/wrap_program_mass.py
    ```
 
 6. Replace `mass/xmasked_seq2seq.py` to apply configuration from tuner and report performance metrics
 
 ```bash
-wget https://github.com/tftuner/prototype_user_guide/releases/download/V2.0.3/xmasked_seq2seq.py -O mass/xmasked_seq2seq.py
+wget https://github.com/tftuner/prototype_user_guide/releases/download/V2.1.0/xmasked_seq2seq.py -O mass/xmasked_seq2seq.py
 ```
 
 6. The tuning is ready to [start](#start-tuning) 
@@ -536,5 +536,7 @@ nni_path=`python -c "from nni.package_utils import get_nni_installation_path as 
 wget https://github.com/tftuner/prototype_user_guide/releases/download/v2.0.1/gpuScheduler.js -O $nni_path/training_service/local/gpuScheduler.js
 ```
 
+## Remove unused checkpoint
 
+Since `v2.1.0`, CUHKPrototypeTunerV2 will remove the checkpoints of trials impossible to train in the next round. There will be a temporary file named `{experiment_id}.json` under output directory (where checkpoints locate). A user should not delete or modify it during an experiment, and is free to delete it after the experiment.
 
