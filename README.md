@@ -6,15 +6,15 @@
 
    ```bash
    pip install nni==1.9 && \
-   wget https://github.com/tftuner/prototype_user_guide/releases/download/v2.0.1/CUHKPrototypeTunerV2-2.0.1-py3-none-any.whl && \
-   nnictl package install CUHKPrototypeTunerV2-2.0.1-py3-none-any.whl
+   wget https://github.com/tftuner/prototype_user_guide/releases/download/v2.1.0/CUHKPrototypeTunerV2-2.1.0-py3-none-any.whl && \
+   nnictl package install CUHKPrototypeTunerV2-2.1.0-py3-none-any.whl
    ```
 
 2. if success install, you should see this output  in the command line
 
    ```bash
    Installing collected packages: CUHKPrototypeTunerV2
-   Successfully installed CUHKPrototypeTunerV2-2.0.1
+   Successfully installed CUHKPrototypeTunerV2-2.1.0
    CUHKPrototypeTunerV2 installed!
    ```
 
@@ -535,6 +535,4 @@ There is a bug in NNI when it reads gpu_metrics in some scenarios. To solve it, 
 nni_path=`python -c "from nni.package_utils import get_nni_installation_path as func;print(func())"`
 wget https://github.com/tftuner/prototype_user_guide/releases/download/v2.0.1/gpuScheduler.js -O $nni_path/training_service/local/gpuScheduler.js
 ```
-
-
 
