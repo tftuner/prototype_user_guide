@@ -84,8 +84,8 @@
 5. Replace `bilm/training.py` and `train_elmo.py` to apply configuration from tuner and report performance metrics
 
 ```bash
-wget https://github.com/tftuner/prototype_user_guide/releases/download/V2.0.2/training.py -O bilm/training.py && \
-wget https://github.com/tftuner/prototype_user_guide/releases/download/V2.0.2/train_elmo.py -O bin/train_elmo.py 
+wget https://github.com/tftuner/prototype_user_guide/releases/download/V2.0.3/training.py -O bilm/training.py && \
+wget https://github.com/tftuner/prototype_user_guide/releases/download/V2.0.3/train_elmo.py -O bin/train_elmo.py 
 ```
 
 6. The tuning is ready to [start](#start-tuning) 
@@ -103,9 +103,9 @@ wget https://github.com/tftuner/prototype_user_guide/releases/download/V2.0.2/tr
    ```bash
    mkdir user_dir
    
-   wget https://github.com/tftuner/prototype_user_guide/releases/download/V2.0.2/__init__.py -O user_dir/__init__.py
+   wget https://github.com/tftuner/prototype_user_guide/releases/download/V2.0.3/__init__.py -O user_dir/__init__.py
    
-   wget https://github.com/tftuner/prototype_user_guide/releases/download/V2.0.2/translation_multi_simple_epoch_nni.py -O user_dir/translation_multi_simple_epoch_nni.py
+   wget https://github.com/tftuner/prototype_user_guide/releases/download/V2.0.3/translation_multi_simple_epoch_nni.py -O user_dir/translation_multi_simple_epoch_nni.py
    ```
 
 3. Create file  ``search_space.json`` to define the search space of hyperparameters and hardware parameters. Execute: 
@@ -160,10 +160,46 @@ wget https://github.com/tftuner/prototype_user_guide/releases/download/V2.0.2/tr
 5. Download the tuner program "wrap_program_mbart.py"
 
    ```bash
-   wget https://github.com/tftuner/prototype_user_guide/releases/download/V2.0.2/wrap_program_mbart.py
+   wget https://github.com/tftuner/prototype_user_guide/releases/download/V2.0.3/wrap_program_mbart.py
    ```
 
-6. The tuning is ready to [start](#start-tuning).
+6. Adjust for parallel fairseq-generate processes
+
+   (1) Modify variable "lang_pairs" in "wrap_program_mbart.py ; line:43" to all language pairs you want to train.
+
+   ```python
+   lang_pairs="en_XX-zh_CN,zh_CN-en_XX"
+   ```
+
+   
+
+   (2) Fill variable "lang_src" and "lang_tgt" in "wrap_program_mbart.py ; line:110 & 111" with source language and target language you want to generate.
+
+   ```python
+   lang_src = ["en_XX","zh_CN"]
+   lang_tgt = ["zh_CN","en_XX"]
+   ```
+
+   Be careful that the number of source language and the number of target language should be equal.
+
+   
+
+   (3) Modify "wrap_program_mbart.py ; line:160 & 161" to make bleu score calculation match language pair if needed.
+
+   ```python
+   os.system("cat %s | grep -P \"^T\" | cut -f 2- > %s" % (result_file, target_file))
+   bsf = os.popen("cat %s | grep -P \"^D\" | cut -f 3- | sacrebleu -b --tok zh %s" % (result_file,target_file))
+   ```
+
+   (4) Fairseq-generate process's detail will be written to 
+
+   ```python
+   {output directory}/{trialID}-{trialEpochs}-{configID}/{lang_src}_to_{lang_tgt}
+   ```
+   
+   (5) "wrap_program_mbart.py" will automatically assign one generate task to one avaliable GPU, when all GPUs are busy, rest generate tasks will wait and assign to idle GPU once the occupied GPU is release.
+
+7. The tuning is ready to [start](#start-tuning).
 
 
 ### For MASS 
@@ -233,13 +269,13 @@ wget https://github.com/tftuner/prototype_user_guide/releases/download/V2.0.2/tr
 5. Download file "wrap_program_mass.py" in the same directory of "config.yml".
 
    ```bash
-   wget https://github.com/tftuner/prototype_user_guide/releases/download/V2.0.2/wrap_program_mass.py
+   wget https://github.com/tftuner/prototype_user_guide/releases/download/V2.0.3/wrap_program_mass.py
    ```
 
 6. Replace `mass/xmasked_seq2seq.py` to apply configuration from tuner and report performance metrics
 
 ```bash
-wget https://github.com/tftuner/prototype_user_guide/releases/download/V2.0.2/xmasked_seq2seq.py -O mass/xmasked_seq2seq.py
+wget https://github.com/tftuner/prototype_user_guide/releases/download/V2.0.3/xmasked_seq2seq.py -O mass/xmasked_seq2seq.py
 ```
 
 6. The tuning is ready to [start](#start-tuning) 
