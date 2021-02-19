@@ -6,15 +6,15 @@
 
    ```bash
    pip install nni==1.9 && \
-   wget https://github.com/tftuner/prototype_user_guide/releases/download/v2.1.0/CUHKPrototypeTunerV2-2.1.0-py3-none-any.whl && \
-   nnictl package install CUHKPrototypeTunerV2-2.1.0-py3-none-any.whl
+   wget https://github.com/tftuner/prototype_user_guide/releases/download/v2.1.1/CUHKPrototypeTunerV2-2.1.1-py3-none-any.whl && \
+   nnictl package install CUHKPrototypeTunerV2-2.1.1-py3-none-any.whl
    ```
 
 2. if success install, you should see this output  in the command line
 
    ```bash
    Installing collected packages: CUHKPrototypeTunerV2
-   Successfully installed CUHKPrototypeTunerV2-2.1.0
+   Successfully installed CUHKPrototypeTunerV2-2.1.1
    CUHKPrototypeTunerV2 installed!
    ```
 
@@ -70,6 +70,8 @@
      builtinAdvisorName: CUHKPrototypeTunerV2
      classArgs:
        num_epochs: 25
+       min_epochs: 1
+       eta: 5
    trial:
      command: python ./bin/train_elmo.py --train_prefix=./data/one_billion/1-billion-word-language-modeling-benchmark-r13output/training-monolingual.tokenized.shuffled/* --vocab_file ./data/vocab-2016-09-10.txt --save_dir ./output_model
      codeDir: .
@@ -146,6 +148,8 @@ wget https://github.com/tftuner/prototype_user_guide/releases/download/V2.0.3/tr
      builtinAdvisorName: CUHKPrototypeTunerV2
      classArgs:
        num_epochs: 25
+       min_epochs: 1
+       eta: 5
    trial:
      command: python wrap_program_mbart.py
      codeDir: .
@@ -255,6 +259,8 @@ wget https://github.com/tftuner/prototype_user_guide/releases/download/V2.0.3/tr
      builtinAdvisorName: CUHKPrototypeTunerV2
      classArgs:
        num_epochs: 25
+       min_epochs: 1
+       eta: 5
    trial:
      command: python wrap_program_mass.py
      codeDir: .
@@ -433,6 +439,8 @@ advisor:
   builtinAdvisorName: CUHKPrototypeTunerV2
   classArgs:
     num_epochs: 25
+    min_epochs: 1
+    eta: 5
 trial:
   command: python ./bin/train_elmo.py --train_prefix=./data/one_billion/1-billion-word-language-modeling-benchmark-r13output/training-monolingual.tokenized.shuffled/* --vocab_file ./data/vocab-2016-09-10.txt --save_dir ./output_model
   codeDir: .
@@ -506,6 +514,8 @@ Clicking the two blue buttons will show you the corresponding contents. Or once 
      builtinAdvisorName: CUHKPrototypeTunerV2
      classArgs:
        num_epochs: 40
+       min_epochs: 1
+       eta: 6
    ```
 
    ``num_epochs`` refers to the maximum or commonly-used number of epochs in your training, e.g. 40.
