@@ -14,6 +14,7 @@ from tensorflow.python.ops.init_ops import glorot_uniform_initializer
 
 from .data import Vocabulary, UnicodeCharsVocabulary, InvalidNumberOfCharacters
 
+import nni
 
 DTYPE = 'float32'
 DTYPE_INT = 'int64'
@@ -665,9 +666,10 @@ def train(options, data, n_gpus, gpu_index, tf_save_dir, tf_log_dir,session_conf
           restart_ckpt_file=None):
 
     # not restarting so save the options
-    if restart_ckpt_file is None:
-        with open(os.path.join(tf_save_dir, 'options.json'), 'w') as fout:
-            fout.write(json.dumps(options))
+    with open(os.path.join(tf_save_dir, 'options.json'), 'w') as fout:
+        saved_option = options.copy()
+        saved_option.update(nni.get_current_parameter())
+        fout.write(json.dumps(saved_option))
 
     with tf.device('/cpu:0'):
         global_step = tf.get_variable(
