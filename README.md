@@ -6,15 +6,15 @@
 
    ```bash
    pip install nni==1.9 && \
-   wget https://github.com/tftuner/prototype_user_guide/releases/download/v2.1.1/CUHKPrototypeTunerV2-2.1.1-py3-none-any.whl && \
-   nnictl package install CUHKPrototypeTunerV2-2.1.1-py3-none-any.whl
+   wget https://github.com/tftuner/prototype_user_guide/releases/download/v2.1.2/CUHKPrototypeTunerV2-2.1.2-py3-none-any.whl && \
+   nnictl package install CUHKPrototypeTunerV2-2.1.2-py3-none-any.whl
    ```
 
 2. if success install, you should see this output  in the command line
 
    ```bash
    Installing collected packages: CUHKPrototypeTunerV2
-   Successfully installed CUHKPrototypeTunerV2-2.1.1
+   Successfully installed CUHKPrototypeTunerV2-2.1.2
    CUHKPrototypeTunerV2 installed!
    ```
 
