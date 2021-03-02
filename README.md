@@ -546,3 +546,15 @@ nni_path=`python -c "from nni.package_utils import get_nni_installation_path as 
 wget https://github.com/tftuner/prototype_user_guide/releases/download/v2.0.1/gpuScheduler.js -O $nni_path/training_service/local/gpuScheduler.js
 ```
 
+## How to package experiment log
+
+Please run the following command to package all logs of an experiment into `{experiment_id}.tar.gz`:
+```bash
+cd ~/nni-experiments && tar -zcvf {experiment_id}.tar.gz {experiment_id}
+```
+
+If the experiment has not been stopped, `{experiment_id}` can be derived under WebUI or by running `nnictl experiment list` in the command line. If the experiment has been stopped, `{experiment_id}` can be derived by running `nnictl experiment list --all` and be determined by `Name`, `StartTime` and `EndTime` together. There may be many items in the list in the second method, and thus we suggest the user use the first method.
+
+- WebUI![](https://lh3.googleusercontent.com/-qRM17Li8qVY/YD3heWsgdCI/AAAAAAAAAvM/MDYKRA6IqvARu-8-EuCKmcN7hgUwkrNmQCK8BGAsYHg/s0/2021-03-01.png)
+
+- Command Line![](https://lh3.googleusercontent.com/-QosmJMTuWK0/YD3itQHcewI/AAAAAAAAAvY/rFK22fYMA-I0ACskXx1T0Du9c6gyEkIGgCK8BGAsYHg/s0/2021-03-01.png)
