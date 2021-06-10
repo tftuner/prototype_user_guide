@@ -3,7 +3,7 @@ import numpy as np
 import sys
 import os
 
-from bilm.training import train, load_options_latest_checkpoint, load_vocab
+from bilm.training import train, load_options_latest_checkpoint, load_vocab, test
 from bilm.data import BidirectionalLMDataset
 
 import warnings
@@ -85,6 +85,14 @@ def main(args):
       final_perplexity = train(options, data, n_gpus,gpus_index_list,tf_save_dir, tf_log_dir,sess_config)
       end = time.time()
     spent_time = (end - start) / 3600.0
+    if args.test_prefix != '':
+      options, ckpt_file = load_options_latest_checkpoint(tf_save_dir)
+      kwargs = {
+          'test': True,
+          'shuffle_on_load': False,
+      }
+      test_data = BidirectionalLMDataset(args.test_prefix, vocab, **kwargs)
+      final_perplexity = test(options, ckpt_file, test_data, batch_size=128)
     report_dict = {'runtime':spent_time,'default':final_perplexity}   
     nni.report_final_result(report_dict)
   ### NNI modification ###
@@ -94,6 +102,7 @@ if __name__ == '__main__':
     parser.add_argument('--save_dir', help='Location of checkpoint files')
     parser.add_argument('--vocab_file', help='Vocabulary file')
     parser.add_argument('--train_prefix', help='Prefix for train files')
+    parser.add_argument('--test_prefix', help='Prefix for test files', default='')
     args = parser.parse_args()
 
     ### NNI modification ###
