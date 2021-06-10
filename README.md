@@ -61,7 +61,7 @@
    trialConcurrency: 1
    
    # Specify the maximum runing time, we specify 1 week here
-   maxExecDuration: 40h 
+   maxExecDuration: 400h 
    maxTrialNum: 9999
    trainingServicePlatform: local
    searchSpacePath: search_space.json
@@ -69,9 +69,9 @@
    advisor:
      builtinAdvisorName: CUHKPrototypeTunerV2
      classArgs:
-       num_epochs: 25
+       num_epochs: 5
        min_epochs: 1
-       eta: 5
+       eta: 2
    trial:
      command: python ./bin/train_elmo.py --train_prefix=./data/one_billion/1-billion-word-language-modeling-benchmark-r13output/training-monolingual.tokenized.shuffled/* --test_prefix=./data/one_billion/1-billion-word-language-modeling-benchmark-r13output/heldout-monolingual.tokenized.shuffled/news.en.heldout-000* --vocab_file ./data/vocab-2016-09-10.txt --save_dir ./output_model
      codeDir: .
