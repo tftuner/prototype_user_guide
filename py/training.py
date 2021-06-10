@@ -959,7 +959,7 @@ def test(options, ckpt_file, data, batch_size=256):
 
     config = tf.ConfigProto(allow_soft_placement=True)
     with tf.Session(config=config) as sess:
-        with tf.device('/gpu:0'), tf.variable_scope('lm'):
+        with tf.device('/gpu:0'), tf.variable_scope('lm', reuse=True):
             test_options = dict(options)
             # NOTE: the number of tokens we skip in the last incomplete
             # batch is bounded above batch_size * unroll_steps
