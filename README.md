@@ -558,3 +558,13 @@ If the experiment has not been stopped, `{experiment_id}` can be derived under W
 - WebUI![](https://lh3.googleusercontent.com/-qRM17Li8qVY/YD3heWsgdCI/AAAAAAAAAvM/MDYKRA6IqvARu-8-EuCKmcN7hgUwkrNmQCK8BGAsYHg/s0/2021-03-01.png)
 
 - Command Line![](https://lh3.googleusercontent.com/-QosmJMTuWK0/YD3itQHcewI/AAAAAAAAAvY/rFK22fYMA-I0ACskXx1T0Du9c6gyEkIGgCK8BGAsYHg/s0/2021-03-01.png)
+
+## Patch for MASS issue
+
+Please download `distributed_utils.py` and `utils.py` with following commands and replace the files with same name in `<conda env path>/site-packages/fairseq/`.
+
+```bash
+wget https://github.com/tftuner/prototype_user_guide/releases/download/v2.1.3/distributed_utils.py -O distributed_utils.py
+wget https://github.com/tftuner/prototype_user_guide/releases/download/v2.1.3/utils.py -O utils.py
+```
+
